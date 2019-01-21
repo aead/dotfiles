@@ -1,0 +1,15 @@
+[user]
+	email = aead@mail.de
+	name = Andreas Auernhammer
+[http]
+	cookiefile = $HOME/.gitcookies
+[alias]
+	s = status --short --branch --ignore-submodules=untracked
+	co = checkout
+	find = log --pretty=\"format:%Cgreen%H\n%s\n\n%b\" --name-status --grep
+	amend = commit --amend --no-edit
+	delete = branch -D
+	
+[core]
+	excludesfile = $HOME/.gitignore_global
+	editor = 'vim'
