@@ -1,0 +1,9 @@
+[submodule ".vim/pack/plugins/start/vim-go"]
+	path = .vim/pack/plugins/start/vim-go
+	url = https://github.com/fatih/vim-go.git
+[submodule ".vim/bundle/fugitive.vim"]
+	path = .vim/bundle/fugitive.vim
+	url = git@github.com:tpope/vim-fugitive.git
+[submodule ".vim/bundle/ctrlp.vim"]
+	path = .vim/bundle/ctrlp.vim
+	url = https://github.com/ctrlpvim/ctrlp.vim.git

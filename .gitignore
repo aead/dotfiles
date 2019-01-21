@@ -1,0 +1,10 @@
+**
+!.vimrc
+!.bashrc
+!.bash_aliases
+!/.vim/
+!/.vim/**
+!.zshrc
+!.tmux.conf
+!.gitconfig
+!.gitignore*
