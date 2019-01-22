@@ -1,9 +1,32 @@
 set runtimepath^=~/.vim/bundle/ctrlp.vim
 set runtimepath^=~/.vim/bundle/fugitive.vim
+set runtimepath^=~/.vim/bundle/airline.vim
+set runtimepath^=~/.vim/bundle/airline-themes.vim
+set runtimepath^=~/.vim/bundle/nerdtree.vim
 
 " Enable syntax highlighting 
 syntax on
 filetype plugin indent on
+
+" Map ö to escape in insert mode 
+noremap  ö <Esc>
+vnoremap ö <Esc>
+inoremap ö <Esc> 
+
+" Map ü to :q to exit windows faster
+noremap  ü :q<CR>
+vnoremap ü :q<CR>
+inoremap ü :q<CR> 
+
+" Map Ctrl-Space as autocomplete
+inoremap <Nul> <C-n> 
+
+" Enable powerline fonts for airline status line
+let g:airline_powerline_fonts = 1
+
+" Enable spell checking
+autocmd BufRead,BufNewFile .txt *.md setlocal spell
+autocmd FileType gitcommit setlocal spell
 
 " Default color scheme
 " colorscheme monokai
