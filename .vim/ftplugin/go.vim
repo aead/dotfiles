@@ -23,8 +23,8 @@ nnoremap <leader>j :GoDef<CR>
 inoremap <leader>j <C-O>:GoDef<CR>
 
 nnoremap <leader>d :GoDecls<CR>
-nnoremap <leader>d <Esc>GoDecls<CR>
-inoremap <leader>d <Esc>GoDecls<CR>
+vnoremap <leader>d <Esc>:GoDecls<CR>
+inoremap <leader>d <Esc>:GoDecls<CR>
 
 nnoremap <leader>D :GoDeclsDir<CR>
 inoremap <leader>D <Esc>:GoDeclsDir<CR>
