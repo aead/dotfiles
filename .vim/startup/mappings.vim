@@ -20,6 +20,13 @@ noremap <silent> <C-S>  :update<CR>
 vnoremap <silent> <C-S> <Esc>:update<CR>
 inoremap <silent> <C-S> <C-O>:update<CR>
 
+" Map TAB and ß as autocomplete                                                           
+inoremap <tab> <C-X><C-O>
+inoremap ß <C-n>
+
+" Map qq to TAB for ident in insert mode
+inoremap qq <tab>
+
 " Switch faster between windows
 nnoremap <C-Up>    <C-w><Up>
 inoremap <C-Up>    <C-O><C-w><Up>

@@ -1,13 +1,18 @@
 " Go-specific settings
- 
+
 au FileType go set noexpandtab
 let g:go_fmt_command = "goreturns"
 let g:go_test_timeout = "1m"
+setlocal omnifunc=go#complete#Complete
 
 " Go-specific key mappings
 
-" Map TAB as autocomplete                                                                  
-inoremap <tab> <C-n>
+" Map TAB and .. as autocomplete                                                                  
+inoremap <tab> <C-X><C-O>
+inoremap ß <C-n>
+
+" Map qq to TAB for ident in insert mode
+inoremap qq <tab>
 
 nnoremap <leader>b :GoBuild<CR>
 inoremap <leader>b <C-O>:GoBuild<CR>

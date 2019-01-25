@@ -41,6 +41,9 @@ set incsearch
 " Show command completion options
 set wildmenu
 
+" Don't show menu detail
+set completeopt=menu,menuone
+
 " Reload buffer if underlying file has changed
 set autoread
 
