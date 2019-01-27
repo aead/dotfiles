@@ -51,7 +51,7 @@ nnoremap gd :Gvdiff<CR>
 nnoremap gD :Gdiff<CR>
 nnoremap gc :Gcommit<CR>
 nnoremap ga :Gcommit --amend --no-edit<CR><CR>
-nnoremap gp :Gpull
+nnoremap gp :Gpull --rebase
 nnoremap gP :Gpush
 nnoremap gf :Gfetch<CR>
 nnoremap gs :Gstatus<CR>
