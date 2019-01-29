@@ -18,6 +18,8 @@ nnoremap <leader>b :GoBuild<CR>
 inoremap <leader>b <C-O>:GoBuild<CR>
 nnoremap <leader>B :GoTestCompile<CR>
 inoremap <leader>B <C-O>:GoTestCompile<CR>
+nnoremap <leader>i :GoInstall<CR>
+inoremap <leader>i <C-O>:GoInstall<CR>
 
 nnoremap <leader>t :GoTest<CR>
 inoremap <leader>t <C-O>:GoTest<CR>
@@ -50,11 +52,12 @@ inoremap <leader>l <Esc>:GoReferrers<CR>
 nnoremap <leader>r :GoRename<CR>
 inoremap <leader>r <Esc>:GoRename<CR>
 
-nnoremap <leader>i :GoInfo<CR>
-inoremap <leader>i <C-O>:GoInfo<CR>
-
 nnoremap <leader>I :GoSameIdsToggle<CR>
 inoremap <leader>I <C-O>:GoSameIdsToggle<CR>
+
+nnoremap <leader><C-i> :GoInfo<CR>
+inoremap <leader><C-i> <C-O>:GoInfo<CR>
+
 
 nnoremap <leader>e :GoIfErr<CR>
 inoremap <leader>e <C-O>:GoIfErr<CR>
