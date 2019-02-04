@@ -3,6 +3,7 @@ set runtimepath^=~/.vim/bundle/fugitive.vim
 set runtimepath^=~/.vim/bundle/airline.vim
 set runtimepath^=~/.vim/bundle/airline-themes.vim
 set runtimepath^=~/.vim/bundle/nerdtree.vim
+set runtimepath^=~/.vim/bundle/latex-preview.vim
 
 " Enable syntax highlighting 
 syntax on
