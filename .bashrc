@@ -63,15 +63,15 @@ if [ "$color_prompt" = yes ]; then
         local repo_path=$(git rev-parse --absolute-git-dir 2> /dev/null);
         local repo_status=$(git status --short --show-stash --ignore-submodules=untracked 2> /dev/null);
         if [[ -n $repo_status && $repo_path != "$HOME/.git" ]];then
-           echo " git:($branch) ✘";
+            echo " ($branch) ✘";
         elif [[ $repo_path != "$HOME/.git" ]];then
-           echo " git:($branch)";
+           echo " ($branch)";
 	elif [[ -n $repo_status && $repo_path = "$HOME/.git" ]];then
            echo " ✘";
 	fi
       fi	
     }
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[1;36m\]➜ \W\[\033[1;31m\]$(git_branch)\[\033[00m\] '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[1;36m\]\A \W/\[\033[1;31m\]$(git_branch)\[\033[1;36m\] ➜\[\033[00m\] '
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
