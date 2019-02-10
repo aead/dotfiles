@@ -7,13 +7,6 @@ setlocal omnifunc=go#complete#Complete
 
 " Go-specific key mappings
 
-" Map TAB and .. as autocomplete                                                                  
-inoremap <tab> <C-X><C-O>
-inoremap ß <C-n>
-
-" Map qq to TAB for ident in insert mode
-inoremap qq <tab>
-
 nnoremap <leader>b :GoBuild<CR>
 inoremap <leader>b <C-O>:GoBuild<CR>
 nnoremap <leader>B :GoTestCompile<CR>
@@ -57,7 +50,6 @@ inoremap <leader>I <C-O>:GoSameIdsToggle<CR>
 
 nnoremap <leader><C-i> :GoInfo<CR>
 inoremap <leader><C-i> <C-O>:GoInfo<CR>
-
 
 nnoremap <leader>e :GoIfErr<CR>
 inoremap <leader>e <C-O>:GoIfErr<CR>

@@ -20,12 +20,37 @@ noremap <silent> <C-S>  :update<CR>
 vnoremap <silent> <C-S> <Esc>:update<CR>
 inoremap <silent> <C-S> <C-O>:update<CR>
 
-" Map TAB and ß as autocomplete                                                           
-inoremap <tab> <C-X><C-O>
-inoremap ß <C-n>
+function! SmartTabComplete()
+  let line = getline('.')
+  let substr = strpart(line, -1, col('.')+1)      " from the start of the current
+                                                  " line to one character right
+                                                  " of the cursor
+  let substr = matchstr(substr, "[^ \t]*$")       " word till cursor
+  if (strlen(substr)==0)                          " nothing to match on empty string
+    return "\<tab>"
+  endif
 
-" Map qq to TAB for ident in insert mode
-inoremap qq <tab>
+  let has_period = match(substr, '\.') != -1      " position of period, if any
+  let has_slash = match(substr, '\/') != -1       " position of slash, if any
+  let has_colon = match(substr, '\:') != -1
+  if (!has_period && !has_slash && !has_colon)
+    return "\<C-X>\<C-P>"                         " existing text matching
+  elseif ( has_slash )
+    return "\<C-X>\<C-F>"                         " file matching
+  else
+    return "\<C-X>\<C-O>"                         " plugin matching
+  endif
+endfunction
+
+" Map tab to autocomplete in insert and normal mode.
+inoremap <tab> <c-r>=SmartTabComplete()<CR>
+nnoremap <tab> i<tab>
+
+" Make <Enter> on popup menu work as expected.
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Always select entry in popup menu and adjust search.
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' : 
+  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
 " Switch faster between windows
 nnoremap <C-Up>    <C-w><Up>

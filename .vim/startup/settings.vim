@@ -42,7 +42,7 @@ set incsearch
 set wildmenu
 
 " Don't show menu detail
-set completeopt=menu,menuone
+set completeopt=longest,menuone
 
 " Reload buffer if underlying file has changed
 set autoread
