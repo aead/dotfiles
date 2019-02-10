@@ -62,6 +62,12 @@ inoremap <C-Left>  <C-O><C-w><Left>
 nnoremap <C-Right> <C-w><Right>
 inoremap <C-Right> <C-O><C-w><Right>
 
+" Split windows
+nnoremap <leader>< :vsplit<CR>
+inoremap <leader>< <C-O>:vsplit<CR>
+nnoremap <leader>- :split<CR>
+inoremap <leader>- <C-O>:split<CR>
+
 " Cycle through Location/QuickFix window entries
 nnoremap ü :cprevious<CR>
 nnoremap Ü :lprevious<CR>
