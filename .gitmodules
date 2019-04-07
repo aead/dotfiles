@@ -7,9 +7,6 @@
 [submodule ".vim/bundle/ctrlp.vim"]
 	path = .vim/bundle/ctrlp.vim
 	url = https://github.com/ctrlpvim/ctrlp.vim.git
-[submodule ".vim/bundle/nerdtree.vim"]
-	path = .vim/bundle/nerdtree.vim
-	url = git@github.com:scrooloose/nerdtree.git
 [submodule ".vim/bundle/airline.vim"]
 	path = .vim/bundle/airline.vim
 	url = git@github.com:vim-airline/vim-airline.git
@@ -19,3 +16,6 @@
 [submodule ".vim/bundle/latex-preview.vim"]
 	path = .vim/bundle/latex-preview.vim
 	url = git@github.com:xuhdev/vim-latex-live-preview.git
+[submodule ".vim/pack/vendor/start/vimcompletesme"]
+	path = .vim/pack/vendor/start/vimcompletesme
+	url = git@github.com:ajh17/VimCompletesMe.git

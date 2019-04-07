@@ -2,7 +2,7 @@
 	email = aead@mail.de
 	name = Andreas Auernhammer
 [http]
-	cookiefile = $HOME/.gitcookies
+	cookiefile = /home/andreas/.gitcookies
 [alias]
 	s = status --short --branch --ignore-submodules=untracked
 	co = checkout

@@ -3,6 +3,7 @@
 au FileType go set noexpandtab
 let g:go_fmt_command = "goreturns"
 let g:go_test_timeout = "1m"
+let g:go_def_mode = "gopls"
 setlocal omnifunc=go#complete#Complete
 
 " Go-specific key mappings

@@ -7,44 +7,26 @@ vnoremap <leader>, <Esc>
 inoremap <leader>, <Esc>
 cnoremap <leader>, <Esc>
 
+" Enter in normal mode goes to the end of the line,
+" switch to insert mode and insert enter (newline).
+nnoremap <CR> A<CR>
+
+" Backspace in normal mode switches to insert mode
+" and insert a backspac (delete last char)
+nnoremap <BS> i<BS>
+
 " Close windows using ö/Ö 
-nnoremap ö :q<CR>
-vnoremap ö <Esc>:q<CR>
-inoremap ö <C-O>:q<CR>
-nnoremap Ö <C-w>w:q<CR>
-vnoremap Ö <Esc><C-w>w:q<CR>
-inoremap Ö <C-O><C-w>w<C-O>:q<CR>
+nnoremap <C-q> :q<CR>
+vnoremap <C-q> <Esc>:q<CR>
+inoremap <C-q> <C-O>:q<CR>
+nnoremap <C-x> <C-w>w:q<CR>
+vnoremap <C-x> <Esc><C-w>w:q<CR>
+inoremap <C-x> <C-O><C-w>w<C-O>:q<CR>
 
 " Ctrl-S saves files (requires stty -ixon)
-noremap <silent> <C-S>  :update<CR>
-vnoremap <silent> <C-S> <Esc>:update<CR>
-inoremap <silent> <C-S> <C-O>:update<CR>
-
-function! SmartTabComplete()
-  let line = getline('.')
-  let substr = strpart(line, -1, col('.')+1)      " from the start of the current
-                                                  " line to one character right
-                                                  " of the cursor
-  let substr = matchstr(substr, "[^ \t]*$")       " word till cursor
-  if (strlen(substr)==0)                          " nothing to match on empty string
-    return "\<tab>"
-  endif
-
-  let has_period = match(substr, '\.') != -1      " position of period, if any
-  let has_slash = match(substr, '\/') != -1       " position of slash, if any
-  let has_colon = match(substr, '\:') != -1
-  if (!has_period && !has_slash && !has_colon)
-    return "\<C-X>\<C-P>"                         " existing text matching
-  elseif ( has_slash )
-    return "\<C-X>\<C-F>"                         " file matching
-  else
-    return "\<C-X>\<C-O>"                         " plugin matching
-  endif
-endfunction
-
-" Map tab to autocomplete in insert and normal mode.
-inoremap <tab> <c-r>=SmartTabComplete()<CR>
-nnoremap <tab> i<tab>
+noremap <silent> <C-S>  :update<CR>i
+vnoremap <silent> <C-S> <Esc>:update<CR><Esc>
+inoremap <silent> <C-S> <C-O>:update<CR><Esc>
 
 " Make <Enter> on popup menu work as expected.
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"

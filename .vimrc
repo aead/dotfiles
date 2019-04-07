@@ -2,7 +2,6 @@ set runtimepath^=~/.vim/bundle/ctrlp.vim
 set runtimepath^=~/.vim/bundle/fugitive.vim
 set runtimepath^=~/.vim/bundle/airline.vim
 set runtimepath^=~/.vim/bundle/airline-themes.vim
-set runtimepath^=~/.vim/bundle/nerdtree.vim
 set runtimepath^=~/.vim/bundle/latex-preview.vim
 
 " Enable syntax highlighting 
@@ -16,6 +15,3 @@ source ~/.vim/startup/commands.vim
 
 " Default color scheme
 " colorscheme monokai
-
-"Map NerdTree command to Ctrl-b
-nnoremap <C-b> :NERDTree<CR>
