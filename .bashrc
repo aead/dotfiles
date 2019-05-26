@@ -129,3 +129,6 @@ fi
 
 # disable ctrl-S for terminal output halt -> in vim ctrl-S saves file 
 stty -ixon
+
+
+function vc { export VIM_COLOR=$1; }

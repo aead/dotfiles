@@ -14,4 +14,8 @@ source ~/.vim/startup/mappings.vim
 source ~/.vim/startup/commands.vim
 
 " Default color scheme
-" colorscheme monokai
+if !empty($VIM_COLOR)
+    colorscheme $VIM_COLOR
+else
+    colorscheme vscode
+endif
