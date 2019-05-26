@@ -47,8 +47,14 @@ set completeopt=longest,menuone
 " Reload buffer if underlying file has changed
 set autoread
 
+" Use the system clipboard for copy/paste (requries vim-gtk3 package).
+set clipboard=unnamedplus
+
 " Enable spell checking for git commit messages
 autocmd FileType gitcommit setlocal spell
+
+" Change color of auto-complete popup menu
+highlight Pmenu ctermbg=gray guibg=gray
 
 " Ctr-P fzf ignores
 let g:ctrlp_custom_ignore = {'dir': '\.git$\'}

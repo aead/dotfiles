@@ -4,9 +4,14 @@
 [http]
 	cookiefile = /home/andreas/.gitcookies
 [alias]
-	s = status --short --branch --ignore-submodules=untracked
-	co = checkout
-	find = log --pretty=\"format:%Cgreen%H\n%s\n\n%b\" --name-status --grep
+    co = checkout
+    sd = !git diff --stat $(git merge-base HEAD master)
+    s  = status -s
+
+    l    = log --pretty=format:"%C(green)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+    find = log --pretty=\"format:%Cgreen%H\n%s\n\n%b\" --name-status --grep
+
+    c     = commit
 	amend = commit --amend --no-edit
 	delete = branch -D
 	

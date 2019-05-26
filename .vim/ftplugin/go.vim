@@ -4,7 +4,9 @@ au FileType go set noexpandtab
 let g:go_fmt_command = "goreturns"
 let g:go_test_timeout = "1m"
 let g:go_def_mode = "gopls"
+let g:go_info_mode = 'guru'
 setlocal omnifunc=go#complete#Complete
+" let b:vcm_tab_complete = "omni"
 
 " Go-specific key mappings
 
@@ -49,8 +51,8 @@ inoremap <leader>r <Esc>:GoRename<CR>
 nnoremap <leader>I :GoSameIdsToggle<CR>
 inoremap <leader>I <C-O>:GoSameIdsToggle<CR>
 
-nnoremap <leader><C-i> :GoInfo<CR>
-inoremap <leader><C-i> <C-O>:GoInfo<CR>
+nnoremap <leader>v :GoInfo<CR>
+inoremap <leader>v <C-O>:GoInfo<CR>
 
 nnoremap <leader>e :GoIfErr<CR>
 inoremap <leader>e <C-O>:GoIfErr<CR>

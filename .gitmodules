@@ -19,3 +19,6 @@
 [submodule ".vim/pack/vendor/start/vimcompletesme"]
 	path = .vim/pack/vendor/start/vimcompletesme
 	url = git@github.com:ajh17/VimCompletesMe.git
+[submodule ".vim/pack/plugins/start/rust.vim"]
+	path = .vim/pack/plugins/start/rust.vim
+	url = git@github.com:rust-lang/rust.vim.git
