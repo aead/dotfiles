@@ -5,6 +5,8 @@ let g:go_fmt_command = "goreturns"
 let g:go_test_timeout = "1m"
 let g:go_def_mode = "gopls"
 let g:go_info_mode = 'guru'
+
+setlocal splitright
 setlocal omnifunc=go#complete#Complete
 " let b:vcm_tab_complete = "omni"
 
@@ -12,18 +14,14 @@ setlocal omnifunc=go#complete#Complete
 
 nnoremap <leader>b :GoBuild<CR>
 inoremap <leader>b <C-O>:GoBuild<CR>
-nnoremap <leader>B :GoTestCompile<CR>
-inoremap <leader>B <C-O>:GoTestCompile<CR>
-nnoremap <leader>i :GoInstall<CR>
-inoremap <leader>i <C-O>:GoInstall<CR>
 
 nnoremap <leader>t :GoTest<CR>
 inoremap <leader>t <C-O>:GoTest<CR>
-nnoremap <leader>T :GoTest -run=
-inoremap <leader>T <Esc>:GoTest -run=
 
-nnoremap <leader>j :GoDef<CR>
-inoremap <leader>j <C-O>:GoDef<CR>
+nnoremap <leader>i :GoDef<CR>
+inoremap <leader>i <C-O>:GoDef<CR>
+nnoremap <leader>j :vsplit<CR>:GoDef<CR>
+inoremap <leader>j <C-O>:vsplit<CR><C-O>:GoDef<CR>
 
 nnoremap <leader>d :GoDecls<CR>
 vnoremap <leader>d <Esc>:GoDecls<CR>

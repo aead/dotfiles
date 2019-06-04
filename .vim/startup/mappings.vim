@@ -7,6 +7,7 @@ vnoremap <leader>, <Esc>
 inoremap <leader>, <Esc>
 cnoremap <leader>, <Esc>
 
+" Enter inserts new-line below the current line.
 nnoremap <CR> A<CR>
 
 " Backspace in normal should work like in insert mode.
