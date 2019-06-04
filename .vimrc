@@ -3,6 +3,7 @@ set runtimepath^=~/.vim/bundle/fugitive.vim
 set runtimepath^=~/.vim/bundle/airline.vim
 set runtimepath^=~/.vim/bundle/airline-themes.vim
 set runtimepath^=~/.vim/bundle/latex-preview.vim
+set runtimepath^=~/.vim/bundle/racer.vim
 
 " Enable syntax highlighting 
 syntax on
@@ -19,3 +20,4 @@ if !empty($VIM_COLOR)
 else
     colorscheme vscode
 endif
+

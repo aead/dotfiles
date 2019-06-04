@@ -22,3 +22,6 @@
 [submodule ".vim/pack/plugins/start/rust.vim"]
 	path = .vim/pack/plugins/start/rust.vim
 	url = git@github.com:rust-lang/rust.vim.git
+[submodule "/home/andreas/.vim/bundle/racer.vim"]
+	path = /home/andreas/.vim/bundle/racer.vim
+	url = https://github.com/racer-rust/vim-racer.git
