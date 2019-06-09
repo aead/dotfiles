@@ -25,3 +25,6 @@
 [submodule ".vim/bundle/racer.vim"]
 	path = .vim/bundle/racer.vim
 	url = https://github.com/racer-rust/vim-racer.git
+[submodule ".vim/bundle/syntastic.vim"]
+	path = .vim/bundle/syntastic.vim
+	url = https://github.com/vim-syntastic/syntastic.git

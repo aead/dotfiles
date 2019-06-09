@@ -4,6 +4,7 @@ set runtimepath^=~/.vim/bundle/airline.vim
 set runtimepath^=~/.vim/bundle/airline-themes.vim
 set runtimepath^=~/.vim/bundle/latex-preview.vim
 set runtimepath^=~/.vim/bundle/racer.vim
+set runtimepath^=~/.vim/bundle/syntastic.vim
 
 " Enable syntax highlighting 
 syntax on
