@@ -61,3 +61,14 @@ let g:ctrlp_custom_ignore = {'dir': '\.git$\'}
 
 " Enable powerline fonts for airline status line
 let g:airline_powerline_fonts = 1
+
+
+" Syntastic settings 
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0

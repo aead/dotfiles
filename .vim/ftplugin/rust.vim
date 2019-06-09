@@ -17,3 +17,12 @@ inoremap <leader>j <C-O>:vsplit<CR><C-O>:call racer#GoToDefinition()<CR>
 
 nmap <leader>h :call racer#ShowDocumentation()<CR>
 inoremap <leader>h <C-O>:call racer#ShowDocumentation()<CR>
+
+nnoremap <F8> :lprev<CR>
+inoremap <F8> <C-O>:lprev<CR>
+
+nnoremap <F9> :lnext<CR>
+inoremap <F9> <C-O>:lnext<CR>
+
+nnoremap <F12> :lclose<CR>
+inoremap <F12> <C-O>:lclose<CR>
