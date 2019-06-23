@@ -35,8 +35,10 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' : \ '<C-n><C-r>=pumvisible() ? "\<l
 " Use Shift-[Up/Down] to navigate to the next text object.
 nnoremap <S-Up> {
 inoremap <S-Up> <C-O>{
+vnoremap <S-Up> {
 nnoremap <S-Down> }
 inoremap <S-Down> <C-O>}
+vnoremap <S-Down> }
 
 " Use Ctrl-w Ctrl-w to create new tab.
 nnoremap <C-w><C-w> :tabnew<CR>
