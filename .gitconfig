@@ -16,5 +16,4 @@
 	delete = branch -D
 	
 [core]
-	excludesfile = $HOME/.gitignore_global
 	editor = 'vim'
