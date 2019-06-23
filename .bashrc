@@ -130,5 +130,11 @@ fi
 # disable ctrl-S for terminal output halt -> in vim ctrl-S saves file 
 stty -ixon
 
-
 function vc { export VIM_COLOR=$1; }
+
+currenttime=$(date +%H:%M)
+if [[ "$currenttime" > "08:30" ]] && [[ "$currenttime" < "18:30" ]]; then
+    export VIM_COLOR=github
+else
+    export VIM_COLOR=vscode
+fi
