@@ -539,3 +539,4 @@ endif
 
 " }}}
 
+hi SpellBad cterm=underline

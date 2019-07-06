@@ -62,6 +62,8 @@ let g:ctrlp_custom_ignore = {'dir': '\.git$\'}
 " Enable powerline fonts for airline status line
 let g:airline_powerline_fonts = 1
 
+" Use 256 color support of terminal.
+let &t_Co=256
 
 " Syntastic settings 
 set statusline+=%#warningmsg#

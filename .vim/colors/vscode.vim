@@ -158,7 +158,7 @@ call <sid>hi('PmenuThumb', {}, s:cdPopupFront, 'none', {})
 call <sid>hi('Question', s:cdBlue, s:cdBack, 'none', {})
 call <sid>hi('Search', s:cdNone, s:cdSearch, 'none', {})
 call <sid>hi('SpecialKey', s:cdBlue, s:cdNone, 'none', {})
-call <sid>hi('SpellBad', s:cdNone, s:cdNone, 'undercurl', {})
+call <sid>hi('SpellBad', s:cdRed, s:cdNone, 'undercurl', {})
 call <sid>hi('SpellCap', s:cdNone, s:cdNone, 'undercurl', {})
 call <sid>hi('SpellLocal', s:cdNone, s:cdNone, 'undercurl', {})
 call <sid>hi('StatusLine', s:cdFront, s:cdLeftMid, 'none', {})
@@ -356,3 +356,4 @@ call <sid>hi('gitcommitOverflow', s:cdRed, {}, 'none', {})
 call <sid>hi('gitcommitSummary', s:cdPink, {}, 'none', {})
 call <sid>hi('gitcommitBlank', s:cdPink, {}, 'none', {})
 
+hi SpellBad cterm=underline
