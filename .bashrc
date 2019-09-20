@@ -138,3 +138,9 @@ if [[ "$currenttime" > "08:30" ]] && [[ "$currenttime" < "18:30" ]]; then
 else
     export VIM_COLOR=vscode
 fi
+
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+
+complete -C /home/andreas/go/bin/mc mc
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

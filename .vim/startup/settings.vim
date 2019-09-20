@@ -56,9 +56,6 @@ autocmd FileType gitcommit setlocal spell
 " Change color of auto-complete popup menu
 highlight Pmenu ctermbg=gray guibg=gray
 
-" Ctr-P fzf ignores
-let g:ctrlp_custom_ignore = {'dir': '\.git$\'}
-
 " Enable powerline fonts for airline status line
 let g:airline_powerline_fonts = 1
 

@@ -7,11 +7,19 @@ vnoremap <leader>, <Esc>
 inoremap <leader>, <Esc>
 cnoremap <leader>, <Esc>
 
+" FZF key binding
+nnoremap <C-p> :FZF<CR>
+vnoremap <C-p> <C-O>:FZF<CR>
+inoremap <C-p> <C-O>>:FZF<CR>
+cnoremap <C-p> <C-O>:FZF<CR>
+
+
 " Enter inserts new-line below the current line.
 nnoremap <CR> A<CR>
 
-" Backspace in normal should work like in insert mode.
+" Backspace and Space in normal should work like in insert mode.
 nnoremap <BS> i<BS>
+nnoremap <Space> i<Space>
 
 " Close window in normal mode with q and close-without-saving with Q.
 nnoremap q :q<CR>
@@ -40,19 +48,21 @@ nnoremap <S-Down> }
 inoremap <S-Down> <C-O>}
 vnoremap <S-Down> }
 
-" Use Ctrl-w Ctrl-w to create new tab.
-nnoremap <C-w><C-w> :tabnew<CR>
-inoremap <C-w><C-w> <C-O>:tabnew<CR>
-
-" Use Ctrl-w t to move a split view to a new tab.
-nnoremap <C-w>t <C-w>T
-inoremap <C-w>t <C-O><C-w>T
+" Cycle through tabs with Ctrl-^
+nnoremap <Nul>      :tabnext<CR>
+inoremap <Nul>      <C-O>:tabnext<CR>
+" Use Ctrl-t to open a new emtpy tab
+nnoremap <C-t> :tabnew<CR>
+inoremap <C-t> <C-O>:tabnew<CR>
+" Use 2x Ctrl-w to move current window to tab
+nnoremap <C-w><C-w> <C-w>T
+inoremap <C-w><C-w> <C-O><C-w>T
 
 " Use Ctrl-Shift-[Left/Right] to navigate to the previous/next tab.
-nnoremap <C-S-Left>  :tabprevious<CR>
-inoremap <C-S-Left>  <C-O>:tabprevious<CR>
-nnoremap <C-S-Right> :tabNext<CR>
-inoremap <C-S-Right>  <C-O>:tabNext<CR>
+"nnoremap <C-S-Left>  :tabprevious<CR>
+"inoremap <C-S-Left>  <C-O>:tabprevious<CR>
+"nnoremap <C-S-Right> :tabNext<CR>
+"inoremap <C-S-Right>  <C-O>:tabNext<CR>
 
 " Use Ctrl-[Up/Down/Left/Right] to navigate to the window to the
 " top/bottom/left/right.
@@ -64,6 +74,14 @@ nnoremap <C-Left>  <C-w><Left>
 inoremap <C-Left>  <C-O><C-w><Left>
 nnoremap <C-Right> <C-w><Right>
 inoremap <C-Right> <C-O><C-w><Right>
+
+" Reopen recently closed window.
+nnoremap <C-l> :e #<CR>
+inoremap <C-l> <C-O>:e #<CR>
+nnoremap <C-w>ls :split#<CR>
+inoremap <C-w>ls <C-O>:split#<CR>
+nnoremap <C-w>lv :vsplit#<CR>
+inoremap <C-w>lv <C-O>:vsplit#<CR>
 
 " Split windows
 " nnoremap <C-w>V :vne<CR>
@@ -93,3 +111,4 @@ nnoremap gp :Gpull --rebase
 nnoremap gP :Gpush
 nnoremap gf :Gfetch<CR>
 nnoremap gs :Gstatus<CR>
+nnoremap go :Git co 
