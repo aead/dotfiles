@@ -139,7 +139,29 @@ else
     export VIM_COLOR=vscode
 fi
 
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
+
+function s {
+    value=$(fzf --height 100% --reverse --border --preview 'bat --color=always {}')
+    if [ $? -eq 0  ]; then
+       bat $value 
+    fi
+}
+
+function v {
+    value=$(fzf --height 100% --reverse --border --preview 'bat --color=always {}')
+    if [ $? -eq 0  ]; then
+       vim $value
+    fi
+}
+
+function cf {
+    value=$(fd -HL -t d | fzf --height 100% --reverse --border --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}')
+    if [ $? -eq 0  ]; then
+       cd $value
+    fi
+}
+
 
 complete -C /home/andreas/go/bin/mc mc
 
