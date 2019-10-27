@@ -59,10 +59,10 @@ nnoremap <C-w><C-w> <C-w>T
 inoremap <C-w><C-w> <C-O><C-w>T
 
 " Use Ctrl-Shift-[Left/Right] to navigate to the previous/next tab.
-"nnoremap <C-S-Left>  :tabprevious<CR>
-"inoremap <C-S-Left>  <C-O>:tabprevious<CR>
-"nnoremap <C-S-Right> :tabNext<CR>
-"inoremap <C-S-Right>  <C-O>:tabNext<CR>
+nnoremap <C-S-Left>  :tabprevious<CR>
+inoremap <C-S-Left>  <C-O>:tabprevious<CR>
+nnoremap <C-S-Right> :tabNext<CR>
+inoremap <C-S-Right>  <C-O>:tabNext<CR>
 
 " Use Ctrl-[Up/Down/Left/Right] to navigate to the window to the
 " top/bottom/left/right.
