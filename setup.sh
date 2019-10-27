@@ -20,10 +20,10 @@ if [ -f ~/.gitconfig ]; then
 fi
 ln -s $PWD/.gitconfig ~/.gitconfig
 
-if [ -f ~/.rgignore ]; then
-    rm ~/.rgignore
+if [ -f ~/.ignore ]; then
+    rm ~/.ignore
 fi
-ln -s $PWD/.rgignore ~/.rgignore
+ln -s $PWD/.ignore ~/.ignore
 
 if [ -f ~/.vimrc ]; then
     rm ~/.vimrc

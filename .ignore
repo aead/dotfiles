@@ -1,0 +1,7 @@
+**/.git/
+**/go/pkg/mod/
+**/.rustup/toolchains/
+**/.cargo/registry/
+**/.cargo/git/
+**/target/release/
+**/target/debug/
