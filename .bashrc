@@ -130,39 +130,260 @@ fi
 # disable ctrl-S for terminal output halt -> in vim ctrl-S saves file 
 stty -ixon
 
-function vc { export VIM_COLOR=$1; }
-
+# Set Vim colorscheme based on day time.
 currenttime=$(date +%H:%M)
 if [[ "$currenttime" > "08:30" ]] && [[ "$currenttime" < "18:30" ]]; then
-    export VIM_COLOR=github
+    export VIM_COLOR=vscode
 else
     export VIM_COLOR=vscode
 fi
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
+export FZF_DEFAULT_OPTS="--bind 'page-up:preview-page-up,page-down:preview-page-down,ctrl-w:beginning-of-line+kill-line'"
 
-function s {
-    value=$(fzf --height 100% --reverse --border --preview 'bat --color=always {}')
-    if [ $? -eq 0  ]; then
-       bat $value 
+# Commands and functions for a great CLI experience
+#
+
+# Command: v [arg-1]
+# Fuzzy search for a file - if 1st arg is non-empty use it as search query.
+# If there is only one, open it directly. If there is no match exit. Otherwise,
+# list matches and the first 200 lines of text files as preview on the right.
+v() {
+  local file
+  file=($(fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview 'head -n 200 | bat -n --color=always {}'))
+  [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
+}
+
+# Command: c [arg-1]
+# Fuzzy search for a directory - if 1st arg is non-empty use it as search query.
+# If there is only one, cd into it directly. If there is no match exit. Otherwise,
+# list files and directories within the currently selected one on the right.
+c() {
+    local dir
+    dir=$(fd -HL -t d "." "$HOME" \
+          | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview'  --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}') && cd "$dir"
+}
+
+# Command: sf [arg-1]
+# Fuzzy search for [arg-1] matches in files and show matching content as preview on 
+# the right. If 1st arg is empty read it from STDIN.
+sf() {
+  local file query
+  if [ ! "$#" -gt 0 ]; then 
+      read -p '(search:) ' query
+  else
+      query="$1"
+  fi
+  if [ -z "$query" ]; then 
+      echo "Error: Missing search query as argument" >&2;
+      return 1; 
+  fi
+
+  file=$(rg --files-with-matches --no-messages "$query" \
+         | fzf --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window=right:75% --preview "rg --ignore-case --pretty --context 10 '$query' {} | bat -n --color always")
+  if [ -n "$file" ]; then 
+      ${EDITOR:-vim} "$file"
+  elif [ $? -eq 0 ]; then
+     echo 'Sorry ¯\_(ツ)_/¯ - No match found';
+  fi
+}
+
+# Command: goDecl [arg-1]
+# Parse all func and type definitions in:
+#  - go file if arg-1 is a go file
+#  - all go files (non-recursive) if arg-1 is a directory
+#  - all go files recursivly if arg-1 is omitted
+# and fuzzy search the go identifiers. 
+# It opens the file which contains the selected identifier
+# at the correct position.
+goDecl() {
+    arg="$1"
+    getDecl() {
+        if [ "$1" == "" ]; then
+            echo $(fd --type d --exec motion -dir "{/.}" -mode decls -include func,type -format json 2> /dev/null)
+        else
+            if [[ -d "$1" ]]; then
+                echo $(motion -dir "$1" -mode decls -include func,type -format json 2> /dev/null)
+            else 
+                echo $(motion -file "$1" -mode decls -include func,type -format json 2> /dev/null)
+            fi
+       fi
+    }
+    file=$(getDecl "$arg" | jq -r '.decls | .[] | "\( .keyword ) \( .ident ) \( .filename) \( .line ) \( .col )"' 2> /dev/null \
+                          | fzf -0 -1 --reverse --with-nth 1,2 --height=50% --preview-window top:5% --bind='CTRL-A:toggle-preview' --preview 'bat --color always -n -r {4}:{4} {3}' \
+                          | awk '{print "+"$4 " " $3}')
+    if [ -n "$file" ]; then
+        ${EDITOR:-vim} $(echo "$file")
     fi
 }
 
-function v {
-    value=$(fzf --height 100% --reverse --border --preview 'bat --color=always {}')
-    if [ $? -eq 0  ]; then
-       vim $value
+# Command: goList [arg-1]
+# Fuzzy search all go packages in GOPATH and GOROOT
+# if arg-1 is empty. Otherwise, fuzzy search all
+# packages in GOPATH and GOROOT that start with arg-1.
+# While fuzzy searching list all files in the currently
+# selected package.
+# Once a package is selected then fuzzy search the package
+# files (recursivly) and show currently selected file as
+# preview.
+# Finally, open selected file in vim.
+goList() {
+    local arg dir file goMod
+    if [ "$1" == "" ]; then
+        arg="all"
+    else
+        arg="$1"
+    fi
+    
+    goMod="$GO111MODULE"
+    GO111MODULE="off"
+    dir=$(go list -f '{{ .ImportPath }} {{ .Dir }}' "$arg" \
+          | fzf --exit-0 --height 100% --with-nth 1 --reverse --border --bind='CTRL-A:toggle-preview' \
+          --preview-window=right:50% --preview 'exa -hHl -L 1 --group-directories-first --tree --color always {2}' \
+          | awk '{print $2}')
+    if [[ -n "$dir" ]]; then
+        file=($(fd . "$dir" --type f -exec echo {/} | fzf --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview "bat -n --color=always $dir/{}"))
+        [[ -n "$file" ]] && ${EDITOR:-vim} $(echo "$dir/$file")
+    fi 
+    GO111MODULE="$goMod"
+}
+
+# Command: co [arg-1]
+# Requires that $PWD is a git repo.
+# Fuzzy search the git log and show
+# the commit message of the currently
+# selected commit in the preview.
+# Once a commit is selected it
+# gets checked out.
+co() {
+  local commit
+  commit=$(git log --pretty=format:"%h  %<(23)%aN %s" \
+          | fzf --query="$1" --sort --exit-0 --reverse --exact --bind='CTRL-A:toggle-preview' \
+          --preview-window=right:40% --preview 'git show -s $(echo {} | awk '"'"'{print $1}'"'"') | bat -n --color always')
+
+  [[ -n "$commit" ]] && git checkout $(echo "$commit" | sed "s/ .*//")
+}
+
+# Command: gitDiff 
+# Requires that $PWD is a git repo.
+# Fuzzy search all changed file and
+# show preview of the diff (compared to HEAD)
+# of the currently selected file.
+gitDiff() {
+    local file
+    file=$(git ls-files -m -o --exclude-standard \
+           | fzf --sync --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' \
+           --preview-window=right:75% --preview '[[ -n $(git diff --name-only {}) ]] && git diff -U10 {} | bat -n --color always || bat -n --color always {}')
+    if [ $? -eq 0 ]; then
+       if [ -n "$file" ]; then
+           ${EDITOR:-vim} $(echo "$file")
+       fi
     fi
 }
 
-function cf {
-    value=$(fd -HL -t d | fzf --height 100% --reverse --border --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}')
-    if [ $? -eq 0  ]; then
-       cd $value
-    fi
+# Command: gitDiff
+# Requires that $PWD is a git repo.
+# Fuzzy search all commits and show commit
+# message of currently selected file in
+# preview. 
+# Once a commit is selected it shows the
+# diff (like gitDiff command) of the commit
+# compared to master.
+gitReview() {
+  local commit parent file
+  commit=$(git log --pretty=format:"%h  %<(23)%aN %s" \
+          | fzf --query="$1" --sort --exit-0 --reverse --exact --bind='CTRL-A:toggle-preview' \
+          --preview-window right:40% --preview 'git show -s $(echo {} | awk '"'"'{print $1}'"'"') | bat -n --color always') &&
+
+  commit=$(echo "$commit" | awk '{print $1}') &&
+  parent=$(git log --pretty="%p" -n 1 "$commit") &&
+  
+  file=$(git diff "$parent" "$commit" --name-only \
+         | fzf --sync --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' \
+         --preview-window=right:75% --preview "git diff -U10 '$parent' '$commit' {} | bat -n --color always")
+  
+  if [ -n "$file" ]; then 
+       ${EDITOR:-vim} $(echo "$file")
+  fi
 }
+
+pr() {
+  local pr branch
+  if [ ! "$#" -gt 0 ]; then 
+      read -p '(PR id:) ' pr
+  else
+      pr="$1"
+  fi
+  if [ -z "$pr" ]; then 
+      echo "Error: Missing pull request ID" >&2;
+      return 1; 
+  fi
+  branch="review_pr_$pr" &&
+  git fetch origin "pull/$pr/head:$branch"
+  if [ $? -eq 0 ]; then
+    git diff "master..$branch" --name-only | fzf --sync --exit-0 --height 100% --reverse --border --preview-window=right:75% --preview "git diff -U10 master.."$branch" {} | bat -n --color always"
+    git branch -D "$branch"
+  fi
+}
+
+pr-review() {
+   local re url user repo pulls pr branch base dir
+   re="^(https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+).git$"
+   if [ "$1" != "" ]; then
+       base=$1
+   else
+       base="master" 
+   fi
+   if [ "$2" != "" ]; then
+       url=$2
+   else
+      url=$(git config --get remote.origin.url)
+   fi
+   if [[ $url =~ $re ]]; then    
+      user=${BASH_REMATCH[4]}
+      repo=${BASH_REMATCH[5]}
+      if [ "$2" != "" ]; then
+         dir=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1) &&
+         mkdir "$dir" && git clone "$url" "./$dir/$repo" && cd "$dir/$repo"
+      fi
+ 
+      pulls=$(curl -X GET "https://api.github.com/repos/$user/$repo/pulls?state=open" 2> /dev/null | jq -r '.[] | "\( .number ), \( .user.login ), \( .title )"' | awk -v FS="," '{printf "%s %-15s %s\n",$1,$2,$3}') && 
+      #pr=$(echo "$pulls" | fzf --sync --reverse --border --preview 'curl -X GET "https://api.github.com/repos/'$user'/'$repo'/pulls/$(echo {} | awk '"'"'{print $1}'"'"')" 2> /dev/null | jq . | bat -n --color always' | awk '{print $1}')
+      pr=$(echo "$pulls" | fzf --sync --exact --exit-0 --reverse | awk '{print $1}')
+      if [ -n "$pr" ]; then 
+         branch="review_pr_$pr" &&
+         git fetch origin "pull/$pr/head:$branch"
+         if [ $? -eq 0 ]; then
+            git diff "$base...$branch" --name-only | fzf --sync --exit-0 --height 100% --reverse --border --preview-window=right:75% --preview "git diff -U10 "$base...$branch" {} | bat -n --color always"
+            git branch -D "$branch"
+         fi
+      fi
+      if [ "$dir" != "" ]; then
+         read -p "Remove $dir/$repo  [N/y]? " -n 1 -r
+         if [[ $REPLY =~ ^[Yy]$ ]]; then
+             cd "../.."
+             rm -rf "$dir" 
+         fi
+        echo "" 
+      fi
+      echo ""
+      echo "Github pull request URL:"
+      echo ""
+      echo "  - PR  : https://github.com/$user/$repo/pull/$pr"
+      echo "  - Diff: https://github.com/$user/$repo/pull/$pr/files"
+      echo ""
+   fi
+}
+
+bind -x '"\C-xp":v'
+bind -x '"\C-xg":gitDiff'
+bind -x '"\C-xr":gitReview'
+
+bind -x '"\C-gd":goDecl ""'
+bind -x '"\C-gl":goList "all"'
 
 
 complete -C /home/andreas/go/bin/mc mc
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
