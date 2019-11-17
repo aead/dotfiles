@@ -1,0 +1,25 @@
+prompt_order = [
+    "username",
+    "hostname",
+    "kubernetes",
+    "time",
+    "directory",
+    "git_branch",
+    "git_state",
+    "git_status",
+    "battery",
+    "memory_usage",
+    "line_break",
+    "jobs",
+    "character",
+]
+
+
+# Replace the "❯" symbol in the prompt with "➜"
+[character]      # The name of the module we are configuring is "character"
+symbol = "➜"     # The "symbol" segment is being set to "➜"
+
+[time]
+disabled = false
+format = "%R"
+

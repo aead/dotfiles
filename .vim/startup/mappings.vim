@@ -83,6 +83,12 @@ inoremap <C-w>ls <C-O>:split#<CR>
 nnoremap <C-w>lv :vsplit#<CR>
 inoremap <C-w>lv <C-O>:vsplit#<CR>
 
+" Fuzzy search files with preview
+" on the right and open selected
+" in a right split view.
+nnoremap <silent> <leader>p :call fzf#run({ 'right': winwidth('.') / 2, 'sink': 'vertical botright split', 'options': '-1 --reverse --preview-window top:75% --bind="CTRL-A:toggle-preview" --preview "bat --color always -n {}"' })<CR>
+inoremap <silent> <leader>p <C-O>:call fzf#run({ 'right': winwidth('.') / 2, 'sink': 'vertical botright split', 'options': '-1 --reverse --preview-window top:75% --bind="CTRL-A:toggle-preview" --preview "bat --color always -n {}"' })<CR>
+
 " Split windows
 " nnoremap <C-w>V :vne<CR>
 " inoremap <C-w>V <C-O>:vne<CR>

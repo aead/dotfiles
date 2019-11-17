@@ -57,22 +57,22 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    function git_branch {
-      local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);
-      if [[ -n $branch ]];then
-        local repo_path=$(git rev-parse --absolute-git-dir 2> /dev/null);
-        local repo_status=$(git status --short --show-stash --ignore-submodules=untracked 2> /dev/null);
-        if [[ -n $repo_status && $repo_path != "$HOME/.git" ]];then
-            echo " ($branch) ✘";
-        elif [[ $repo_path != "$HOME/.git" ]];then
-           echo " ($branch)";
-	elif [[ -n $repo_status && $repo_path = "$HOME/.git" ]];then
-           echo " ✘";
-	fi
-      fi	
-    }
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[1;36m\]\A \W/\[\033[1;31m\]$(git_branch)\[\033[1;36m\] ➜\[\033[00m\] '
-    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    #function git_branch {
+    #  local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);
+    #  if [[ -n $branch ]];then
+    #    local repo_path=$(git rev-parse --absolute-git-dir 2> /dev/null);
+    #    local repo_status=$(git status --short --show-stash --ignore-submodules=untracked 2> /dev/null);
+    #    if [[ -n $repo_status && $repo_path != "$HOME/.git" ]];then
+    #        echo " ($branch) ✘";
+    #    elif [[ $repo_path != "$HOME/.git" ]];then
+    #       echo " ($branch)";
+	#elif [[ -n $repo_status && $repo_path = "$HOME/.git" ]];then
+    #       echo " ✘";
+	#fi
+    #  fi	
+    #}
+    #PS1='${debian_chroot:+($debian_chroot)}\[\033[1;36m\]\A \W/\[\033[1;31m\]$(git_branch)\[\033[1;36m\] ➜\[\033[00m\] '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -86,6 +86,9 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
+# Use starship prompt - requires cargo install cargo install starship
+eval "$(starship init bash)"
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -141,7 +144,7 @@ fi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
-export FZF_DEFAULT_OPTS="--bind 'page-up:preview-page-up,page-down:preview-page-down,ctrl-w:beginning-of-line+kill-line'"
+export FZF_DEFAULT_OPTS="--bind 'page-up:preview-page-up,page-down:preview-page-down,ctrl-w:beginning-of-line+kill-line,ctrl-A:toggle-preview' --preview-window hidden --preview ' [[ -f {} ]] && bat -n --color=always {}'"
 
 # Commands and functions for a great CLI experience
 #
@@ -152,7 +155,7 @@ export FZF_DEFAULT_OPTS="--bind 'page-up:preview-page-up,page-down:preview-page-
 # list matches and the first 200 lines of text files as preview on the right.
 v() {
   local file
-  file=($(fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview 'head -n 200 | bat -n --color=always {}'))
+  file=($(fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window right:50% --preview 'head -n 200 | bat -n --color=always {}'))
   [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
 }
 
@@ -163,7 +166,7 @@ v() {
 c() {
     local dir
     dir=$(fd -HL -t d "." "$HOME" \
-          | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview'  --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}') && cd "$dir"
+          | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window right:50%  --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}') && cd "$dir" && v
 }
 
 # Command: sf [arg-1]
@@ -202,14 +205,13 @@ goDecl() {
     arg="$1"
     getDecl() {
         if [ "$1" == "" ]; then
-            echo $(fd --type d --exec motion -dir "{/.}" -mode decls -include func,type -format json 2> /dev/null)
-        else
-            if [[ -d "$1" ]]; then
-                echo $(motion -dir "$1" -mode decls -include func,type -format json 2> /dev/null)
-            else 
-                echo $(motion -file "$1" -mode decls -include func,type -format json 2> /dev/null)
-            fi
-       fi
+            "$1" == "."
+        fi
+        if [[ -d "$1" ]]; then
+           echo $(motion -dir "$1" -mode decls -include func,type -format json 2> /dev/null)
+        else 
+           echo $(motion -file "$1" -mode decls -include func,type -format json 2> /dev/null)
+        fi
     }
     file=$(getDecl "$arg" | jq -r '.decls | .[] | "\( .keyword ) \( .ident ) \( .filename) \( .line ) \( .col )"' 2> /dev/null \
                           | fzf -0 -1 --reverse --with-nth 1,2 --height=50% --preview-window top:5% --bind='CTRL-A:toggle-preview' --preview 'bat --color always -n -r {4}:{4} {3}' \
@@ -377,13 +379,14 @@ pr-review() {
    fi
 }
 
-bind -x '"\C-xp":v'
-bind -x '"\C-xg":gitDiff'
-bind -x '"\C-xr":gitReview'
+bind -x '"\C-p": "v"'
+bind -x '"\C-s": "c"'
 
-bind -x '"\C-gd":goDecl ""'
-bind -x '"\C-gl":goList "all"'
+bind -x '"\C-xg": "gitDiff"'
+bind -x '"\C-xr": "gitReview"'
 
+bind -x '"\C-gd": "goDecl ."'
+bind -x '"\C-gl": "goList all"'
 
 complete -C /home/andreas/go/bin/mc mc
 

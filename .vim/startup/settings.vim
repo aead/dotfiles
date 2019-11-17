@@ -62,6 +62,8 @@ let g:airline_powerline_fonts = 1
 " Use 256 color support of terminal.
 let &t_Co=256
 
+let g:fzf_action = { 'ctrl-t': 'tab split', 'ctrl-y': 'split', 'ctrl-x': 'vertical botright split' }
+
 " Syntastic settings 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}

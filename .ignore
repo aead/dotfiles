@@ -5,3 +5,4 @@
 **/.cargo/git/
 **/target/release/
 **/target/debug/
+**/snap/

@@ -12,9 +12,9 @@ setlocal omnifunc=go#complete#Complete
 
 " Go-specific key mappings
 
-" Jump back if we've jumped to a definition
-nnoremap <leader>o <C-o>
-inoremap <leader>o <C-O><C-o>
+" Jump back after go-to-definition
+nnoremap <leader>l :GoDefPop<CR>
+inoremap <leader>l <C-O>:GoDefPop<CR>
 
 " Jump to prev entry in the quickfix window
 nnoremap <leader>m :cprev<CR>
@@ -28,9 +28,9 @@ inoremap <leader>. <C-O>:cnext<CR>
 nnoremap <leader>b :GoBuild<CR>
 inoremap <leader>b <C-O>:GoBuild<CR>
 
-" Executes 'go run'
-nnoremap <leader>r :GoRun<CR>
-inoremap <leader>r <Esc>:GoRun<CR>
+" Rename identifier under cursor
+nnoremap <leader>r :GoRename<CR>
+inoremap <leader>r <Esc>:GoRename<CR>
 
 "Executes 'go test' async
 nnoremap <leader>t :GoTest<CR>
@@ -41,8 +41,8 @@ nnoremap <leader>j :GoDef<CR>
 inoremap <leader>j <C-O>:GoDef<CR>
 
 "Split window vertically and jump to the definition of whatever is under the cursor
-nnoremap <leader>J :vsplit<CR>:GoDef<CR>
-inoremap <leader>J <C-O>:vsplit<CR><C-O>:GoDef<CR>
+nnoremap <leader>k :vsplit<CR>:GoDef<CR>
+inoremap <leader>k <C-O>:vsplit<CR><C-O>:GoDef<CR>
 
 "Open docs for whatever is under the cursor
 nnoremap <leader>h :GoDoc<CR>
@@ -52,18 +52,16 @@ inoremap <leader>h <C-O>:GoDoc<CR>
 nnoremap <leader>H :GoDocBrowser<CR>
 inoremap <leader>H <C-O>:GoDocBrowser<CR>
 
-"Show package-level declarations (functions, types, a.s.o)
-nnoremap <leader>d :GoDecls<CR>
-inoremap <leader>d <C-O>:GoDecls<CR>
+ "Show file-level declarations (functions, types, a.s.o)
+nnoremap <leader>f :GoDecls<CR>
+inoremap <leader>f <C-O>:GoDecls<CR>
+
+ "Show package-level declarations (functions, types, a.s.o)
+nnoremap <leader>d :GoDeclsDir<CR>
+inoremap <leader>d <C-O>:GoDeclsDir<CR>
 
 " Switch between .go and _test.go file
 nnoremap <leader>a :GoAlternate<CR>
 nnoremap <leader>A <C-w>v<C-w>w:GoAlternate<CR>
 inoremap <leader>A <C-O><C-w>v<C-O><C-w>w<C-O>:GoAlternate<CR>
 
-nnoremap <leader>l :GoSameIdsToggle<CR>
-inoremap <leader>l <C-O>:GoSameIdsToggle<CR>
-
-" Insert if err != nil snippet
-nnoremap <leader>e :GoIfErr<CR>
-inoremap <leader>e <C-O>:GoIfErr<CR>

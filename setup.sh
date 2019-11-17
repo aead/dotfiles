@@ -25,6 +25,11 @@ if [ -f ~/.ignore ]; then
 fi
 ln -s $PWD/.ignore ~/.ignore
 
+if [ -f ~/.config/starship.toml ]; then
+    rm ~/.config/starship.toml
+fi
+ln -s $PWD/starship.toml ~/.config/starship.toml
+
 if [ -f ~/.vimrc ]; then
     rm ~/.vimrc
 fi
