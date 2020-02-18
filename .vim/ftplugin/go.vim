@@ -5,6 +5,7 @@ let g:go_fmt_command = "goimports"
 let g:go_test_timeout = "1m"
 let g:go_def_mode = "gopls"
 let g:go_info_mode = "gopls"
+let g:go_gorename_command = 'gopls'
 
 setlocal splitright
 setlocal omnifunc=go#complete#Complete
@@ -13,8 +14,8 @@ setlocal omnifunc=go#complete#Complete
 " Go-specific key mappings
 
 " Jump back after go-to-definition
-nnoremap <leader>l :GoDefPop<CR>
-inoremap <leader>l <C-O>:GoDefPop<CR>
+nnoremap <leader>o :GoDefPop<CR>
+inoremap <leader>o <C-O>:GoDefPop<CR>
 
 " Jump to prev entry in the quickfix window
 nnoremap <leader>m :cprev<CR>
@@ -55,6 +56,10 @@ inoremap <leader>H <C-O>:GoDocBrowser<CR>
  "Show file-level declarations (functions, types, a.s.o)
 nnoremap <leader>f :GoDecls<CR>
 inoremap <leader>f <C-O>:GoDecls<CR>
+
+ "Show file-level declarations (functions, types, a.s.o)
+nnoremap <C-d> :GoDecls<CR>
+inoremap <C-d> <C-O>:GoDecls<CR>
 
  "Show package-level declarations (functions, types, a.s.o)
 nnoremap <leader>d :GoDeclsDir<CR>
