@@ -180,17 +180,30 @@ sf() {
       query="$1"
   fi
   if [ -z "$query" ]; then 
-      echo "Error: Missing search query as argument" >&2;
+      echo "Error: Search query required" >&2;
       return 1; 
   fi
 
   file=$(rg --files-with-matches --no-messages "$query" \
-         | fzf --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window=right:75% --preview "rg --ignore-case --pretty --context 10 '$query' {} | bat -n --color always")
-  if [ -n "$file" ]; then 
-      ${EDITOR:-vim} "$file"
-  elif [ $? -eq 0 ]; then
-     echo 'Sorry ¯\_(ツ)_/¯ - No match found';
-  fi
+         | fzf --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window=right:75% --preview "rg --ignore-case --pretty --context 10 '$query' {} | bat --style=snip --color always")
+  [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
+}
+
+export MANPAGER="bat -p -l man"
+
+fman() {
+   local m=$(man -k . \
+             | fzf \
+               --query="$1" \
+               --exit-0 \
+               --exact \
+               --reverse \
+               --border \
+               --bind='CTRL-A:toggle-preview' \
+               --preview-window=right:60% \
+               --preview 'man {1}'
+            )
+   [[ -n "$m" ]] && echo "$m" | awk '{print $1}' | xargs -r man
 }
 
 # Command: goDecl [arg-1]
@@ -201,9 +214,8 @@ sf() {
 # and fuzzy search the go identifiers. 
 # It opens the file which contains the selected identifier
 # at the correct position.
-goDecl() {
-    arg="$1"
-    getDecl() {
+go-decl() {
+    get-decl() {
         if [ "$1" == "" ]; then
             "$1" == "."
         fi
@@ -213,12 +225,23 @@ goDecl() {
            echo $(motion -file "$1" -mode decls -include func,type -format json 2> /dev/null)
         fi
     }
-    file=$(getDecl "$arg" | jq -r '.decls | .[] | "\( .keyword ) \( .ident ) \( .filename) \( .line ) \( .col )"' 2> /dev/null \
-                          | fzf -0 -1 --reverse --with-nth 1,2 --height=50% --preview-window top:5% --bind='CTRL-A:toggle-preview' --preview 'bat --color always -n -r {4}:{4} {3}' \
-                          | awk '{print "+"$4 " " $3}')
-    if [ -n "$file" ]; then
-        ${EDITOR:-vim} $(echo "$file")
-    fi
+
+    file=$(get-decl "$1" \
+           | jq \
+             -r '.decls | .[] | "\( .keyword ) \( .ident ) \( .filename) \( .line ) \( .col )"' \
+             2> /dev/null \
+           | fzf \
+             --exit-0 \
+             --select-1 \
+             --reverse \
+             --with-nth 1,2 \
+             --height=50% \
+             --preview-window top:5% \
+             --bind='CTRL-A:toggle-preview' \
+             --preview 'bat --color always -n -r {4}:{4} {3}' \
+           | awk '{print "+"$4 " " $3}'
+          )
+    [[ -n "$file" ]] && ${EDITOR:-vim} $(echo "$file")
 }
 
 # Command: goList [arg-1]
@@ -252,36 +275,102 @@ goList() {
     GO111MODULE="$goMod"
 }
 
-# Command: co [arg-1]
-# Requires that $PWD is a git repo.
-# Fuzzy search the git log and show
-# the commit message of the currently
-# selected commit in the preview.
-# Once a commit is selected it
-# gets checked out.
-co() {
-  local commit
-  commit=$(git log --pretty=format:"%h  %<(23)%aN %s" \
-          | fzf --query="$1" --sort --exit-0 --reverse --exact --bind='CTRL-A:toggle-preview' \
-          --preview-window=right:40% --preview 'git show -s $(echo {} | awk '"'"'{print $1}'"'"') | bat -n --color always')
-
-  [[ -n "$commit" ]] && git checkout $(echo "$commit" | sed "s/ .*//")
+# git-show [query]
+#   - Requires that $PWD is a git repo.
+# 
+# It fuzzy-searches 'git log' and displays the 
+# 'git show' of the currently selected commit.
+# 
+# If a commit has been selected and STDOUT is 
+# not a TTY git-show outputs the (short) commit
+# ID.
+git-show() {
+    local c=$(git log \
+                --format='%C(auto)%h%d %s %C(white)%C(bold)%cr' \
+                --color=always \
+              | fzf \
+                --query="$1" \
+                --exit-0 \
+                --ansi \
+                --reverse \
+                --exact \
+                --border \
+                --no-sort \
+                --bind='CTRL-A:toggle-preview' \
+                --preview-window=right:50% \
+                --preview 'git show --name-status --color=always {1} | bat -n --color always'
+            )
+    [[ -n "$c" ]] && [[ ! -t 1 ]] && echo "$c" | awk '{print $1}'
 }
 
-# Command: gitDiff 
-# Requires that $PWD is a git repo.
-# Fuzzy search all changed file and
-# show preview of the diff (compared to HEAD)
-# of the currently selected file.
-gitDiff() {
-    local file
-    file=$(git ls-files -m -o --exclude-standard \
-           | fzf --sync --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' \
-           --preview-window=right:75% --preview '[[ -n $(git diff --name-only {}) ]] && git diff -U10 {} | bat -n --color always || bat -n --color always {}')
-    if [ $? -eq 0 ]; then
-       if [ -n "$file" ]; then
-           ${EDITOR:-vim} $(echo "$file")
-       fi
+# git-diff 
+#   - Requires that $PWD is a git repo.
+# 
+# It fuzzy-searches all changed files and
+# displays a preview of the diff (compared 
+# to HEAD) of the currently selected file.
+#
+# If a file has been selected git-diff opens
+# it in vim.
+git-diff() {
+    local f=$(git ls-files \
+                -m -o \
+                --exclude-standard \
+              | fzf \
+                --sync \
+                --exit-0 \
+                --reverse \
+                --border \
+                --sort \
+                --bind='CTRL-A:toggle-preview' \
+                --preview-window=right:75% \
+                --preview '[[ -n $(git diff --name-only {}) ]] && git diff -U10 {} | bat -n --color always || bat -n --color always {}')
+    [[ -n "$f" ]] && ${EDITOR:-vim} $(echo "$f")
+}
+
+# git-blame [query]
+#   - Requires that $PWD is a git repo.
+# 
+# It fuzzy-searches 'git ls-files' and displays
+# the 'git blame' of the currently selected file.
+# 
+# If a file has been selected git-blame fuzzy-
+# searches all commits that modified that file
+# (using 'git log') and displays the commit as
+# patch in the preview.
+#
+# If a commit has been selected git-blame prints
+# that commit to STDOUT.
+git-blame() {
+    local f=$(git ls-files \
+              | fzf \
+                --query="$1" \
+                --exit-0 \
+                --reverse \
+                --border \
+                --sort \
+                --bind='CTRL-A:toggle-preview' \
+                --preview-window=right:50% \
+                --preview 'git blame --root -s --color-by-age --color-lines {} | sed -r "s/(\s+)?\S+//2"  | bat -n --color always'
+            )
+    if [ -n "$f" ]; then
+        local c=$(git log \
+                    --format='%C(auto)%h%d %s %C(white)%C(bold)%cr' \
+                    --color=always \
+                    -- "$f" \
+                  | fzf \
+                    --query="$1" \
+                    --exit-0 \
+                    --ansi \
+                    --reverse \
+                    --exact \
+                    --border \
+                    --no-sort \
+                    --bind='CTRL-A:toggle-preview' \
+                    --preview-window=right:50% \
+                    --preview 'git show -p --color=always {1} | bat -n --color always'
+                 )
+       [[ -n "$c" ]] && echo "$c" | awk '{print $1}' 
     fi
 }
 
@@ -382,10 +471,12 @@ pr-review() {
 bind -x '"\C-p": "v"'
 bind -x '"\C-s": "c"'
 
-bind -x '"\C-xg": "gitDiff"'
+bind -x '"\C-x\C-s": "git-show"'
+bind -x '"\C-x\C-d": "git-diff"'
+bind -x '"\C-x\C-b": "git-blame"'
 bind -x '"\C-xr": "gitReview"'
 
-bind -x '"\C-gd": "goDecl ."'
+bind -x '"\C-gd": "go-decl ."'
 bind -x '"\C-gl": "goList all"'
 
 complete -C /home/andreas/go/bin/mc mc
