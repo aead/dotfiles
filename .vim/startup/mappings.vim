@@ -13,7 +13,6 @@ vnoremap <C-p> <C-O>:FZF<CR>
 inoremap <C-p> <C-O>>:FZF<CR>
 cnoremap <C-p> <C-O>:FZF<CR>
 
-
 " Enter inserts new-line below the current line.
 nnoremap <CR> A<CR>
 
@@ -51,9 +50,7 @@ vnoremap <S-Down> }
 " Cycle through tabs with Ctrl-^
 nnoremap <Nul>      :tabnext<CR>
 inoremap <Nul>      <C-O>:tabnext<CR>
-" Use Ctrl-t to open a new emtpy tab
-nnoremap <C-t> :tabnew<CR>
-inoremap <C-t> <C-O>:tabnew<CR>
+
 " Use 2x Ctrl-w to move current window to tab
 nnoremap <C-w><C-w> <C-w>T
 inoremap <C-w><C-w> <C-O><C-w>T

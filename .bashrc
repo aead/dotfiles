@@ -133,14 +133,6 @@ fi
 # disable ctrl-S for terminal output halt -> in vim ctrl-S saves file 
 stty -ixon
 
-# Set Vim colorscheme based on day time.
-currenttime=$(date +%H:%M)
-if [[ "$currenttime" > "08:30" ]] && [[ "$currenttime" < "18:30" ]]; then
-    export VIM_COLOR=vscode
-else
-    export VIM_COLOR=vscode
-fi
-
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
@@ -165,8 +157,24 @@ v() {
 # list files and directories within the currently selected one on the right.
 c() {
     local dir
-    dir=$(fd -HL -t d "." "$HOME" \
-          | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window right:50%  --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}') && cd "$dir" && v
+    if [ -f ~/.starred_dirs ]; then
+       dir=$(cat ~/.starred_dirs \
+             | fzf --query="$1" --exit-0 --height 100% --reverse --border \
+                   --bind='CTRL-A:toggle-preview' \
+                   --preview-window right:50% \
+                   --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}'
+            )
+    fi
+    if [ -n "$dir" ]; then
+       cd "$dir" && v
+    else
+       dir=$(fd -HL -t d "." "$HOME" \
+            | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border \
+              --bind='CTRL-A:toggle-preview' \
+              --preview-window right:50% \
+              --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}'
+            ) && cd "$dir" && v
+    fi
 }
 
 # Command: sf [arg-1]
@@ -324,7 +332,7 @@ git-diff() {
                 --sort \
                 --bind='CTRL-A:toggle-preview' \
                 --preview-window=right:75% \
-                --preview '[[ -n $(git diff --name-only {}) ]] && git diff -U10 {} | bat -n --color always || bat -n --color always {}')
+                --preview 'bat --diff --diff-context 5 --color always {}')
     [[ -n "$f" ]] && ${EDITOR:-vim} $(echo "$f")
 }
 
@@ -370,8 +378,34 @@ git-blame() {
                     --preview-window=right:50% \
                     --preview 'git show -p --color=always {1} | bat -n --color always'
                  )
-       [[ -n "$c" ]] && echo "$c" | awk '{print $1}' 
+       [[ -n "$c" ]] && echo "$c" | awk '{print $1}' | 2c && echo "Copied $(c2) to clipboard!" 
     fi
+}
+
+git-branch() {
+  local result=$(git branch --color=always \
+                 | rg -v '/HEAD\s' \
+                 | fzf \
+                   --reverse \
+                   --height 50% \
+                   --border \
+                   --ansi \
+                   --tac \
+                   --preview-window right:70% \
+                   --preview 'git show -p --color=always "$(sed s/^..// <<< {} | cut -d" " -f1)" | bat' \
+                 | sed 's/^..//' | cut -d' ' -f1
+                )
+  if [[ $result != "" ]]; then
+      git checkout "$result"
+  fi
+}
+
+star-dir() {
+   echo "$PWD" >> ~/.starred_dirs
+}
+
+unstar-dir() { 
+   rg -v -x -F "$PWD" '~/.starred_dirs' > '~/.starred_dirs'
 }
 
 # Command: gitDiff
@@ -474,6 +508,7 @@ bind -x '"\C-s": "c"'
 bind -x '"\C-x\C-s": "git-show"'
 bind -x '"\C-x\C-d": "git-diff"'
 bind -x '"\C-x\C-b": "git-blame"'
+bind -x '"\C-x\C-o": "git-branch"'
 bind -x '"\C-xr": "gitReview"'
 
 bind -x '"\C-gd": "go-decl ."'
