@@ -107,6 +107,10 @@ nnoremap <F3> :colorscheme vscode<CR>
 nnoremap <F4> :colorscheme github<CR>
 
 " Git shortcuts
+nnoremap <C-x><C-d> :Gvdiff<CR>
+inoremap <C-x><C-d> <C-O>:Gvdiff<CR>
+
+" Git shortcuts
 nnoremap gl :Glog<CR><CR>
 " Hint: use o to open Gblame entry commit in new window
 nnoremap gb :Gblame<CR>
