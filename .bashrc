@@ -1,4 +1,4 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
+# ~/.bashrc: executed by bash(0) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
@@ -151,6 +151,27 @@ v() {
   [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
 }
 
+v-git() {
+   local file
+   git diff -s --exit-code 2>/dev/null;
+   if [ $? == 1 ]; then
+      file=$(git ls-files \
+             -m -o \
+             --exclude-standard \
+           | fzf \
+             --query="$1"\
+             --sync \
+             --exit-0 \
+             --reverse \
+             --border \
+             --sort \
+             --bind='CTRL-A:toggle-preview' \
+             --preview-window=right:75% \
+             --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && bat --diff --diff-context 8 --color always {} || bat --color always {}')
+   fi
+   [[ -n "$file" ]] && ${EDITOR:-vim} "$file" 
+}
+
 # Command: c [arg-1]
 # Fuzzy search for a directory - if 1st arg is non-empty use it as search query.
 # If there is only one, cd into it directly. If there is no match exit. Otherwise,
@@ -166,14 +187,14 @@ c() {
             )
     fi
     if [ -n "$dir" ]; then
-       cd "$dir" && v
+       cd "$dir" && v-git
     else
        dir=$(fd -HL -t d "." "$HOME" \
             | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border \
               --bind='CTRL-A:toggle-preview' \
               --preview-window right:50% \
               --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}'
-            ) && cd "$dir" && v
+            ) && cd "$dir" && v-git
     fi
 }
 
@@ -332,7 +353,7 @@ git-diff() {
                 --sort \
                 --bind='CTRL-A:toggle-preview' \
                 --preview-window=right:75% \
-                --preview 'bat --diff --diff-context 5 --color always {}')
+                --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && bat --diff --diff-context 8 --color always {} || bat --color always {}')
     [[ -n "$f" ]] && ${EDITOR:-vim} $(echo "$f")
 }
 
@@ -513,6 +534,9 @@ bind -x '"\C-xr": "gitReview"'
 
 bind -x '"\C-gd": "go-decl ."'
 bind -x '"\C-gl": "goList all"'
+
+# export VIM_COLOR=github 
+# export BAT_THEME=GitHub 
 
 complete -C /home/andreas/go/bin/mc mc
 
