@@ -6,3 +6,4 @@
 **/target/release/
 **/target/debug/
 **/snap/
+**/.cache/
