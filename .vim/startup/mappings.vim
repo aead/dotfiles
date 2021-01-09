@@ -1,125 +1,135 @@
-" Map <leader> key to ','
-let mapleader = ","
-
-" Map double <leader> to escape
-nnoremap <leader>, <Esc>
-vnoremap <leader>, <Esc>
-inoremap <leader>, <Esc>
-cnoremap <leader>, <Esc>
-
-" FZF key binding
-nnoremap <C-p> :FZF<CR>
-vnoremap <C-p> <C-O>:FZF<CR>
-inoremap <C-p> <C-O>>:FZF<CR>
-cnoremap <C-p> <C-O>:FZF<CR>
-
-" Enter inserts new-line below the current line.
+" Enter, space and backspace should behave consistent in
+" normal and insert mode:
 nnoremap <CR> A<CR>
-
-" Backspace and Space in normal should work like in insert mode.
-nnoremap <BS> i<BS>
 nnoremap <Space> i<Space>
+nnoremap <BS> i<BS>
 
-" Close window in normal mode with q and close-without-saving with Q.
-nnoremap q :q<CR>
-nnoremap Q :q!<CR>
+" Ctrl-i triggers auto-completion. (keyword completion)
+" Unfortunately, vim treats TAB as Ctrl-i. Therefore,
+" we have to re.map Ctrl-i. Otherwise, TAB would not
+" behave as expected.
+inoremap <C-i> <C-x><C-n>
 
-" Close another opened window in normal, visual and insert mode
-" with Ctrl+q 
-nnoremap <C-q> <C-w>w:q<CR>
-vnoremap <C-q> <Esc><C-w>w:q<CR>
-inoremap <C-q> <C-O><C-w>w<C-O>:q<CR>
-
-" Ctrl-S saves files (requires stty -ixon)
-nnoremap <silent> <C-S> :update<CR>
-inoremap <silent> <C-S> <C-O>:update<CR>
+" Enter in visual mode copies the selection to clipboard
+vnoremap <CR> y<Esc> 
 
 " Make <Enter> on popup menu work as expected.
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 " Always select entry in popup menu and adjust search.
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' : \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
-" Use Shift-[Up/Down] to navigate to the next text object.
-nnoremap <S-Up> {
-inoremap <S-Up> <C-O>{
-vnoremap <S-Up> {
-nnoremap <S-Down> }
-inoremap <S-Down> <C-O>}
-vnoremap <S-Down> }
+" Ctrl-w-Ctrl-w switch windows (like in normal mode)
+inoremap <C-W><C-W> <C-O><C-W><C-W>
+vnoremap <C-W><C-W> <C-O><C-W><C-W>
 
-" Cycle through tabs with Ctrl-^
-nnoremap <Nul>      :tabnext<CR>
-inoremap <Nul>      <C-O>:tabnext<CR>
+" Ctrl-Space keeps only the current window open
+" and closes all others.
+nnoremap <Nul> :only<CR>
+inoremap <Nul> <C-O>:only<CR>
+vnoremap <Nul> <C-O>:only<CR>
 
-" Use 2x Ctrl-w to move current window to tab
-nnoremap <C-w><C-w> <C-w>T
-inoremap <C-w><C-w> <C-O><C-w>T
+" Ctrl-s saves files (requires stty -ixon)
+nnoremap <silent> <C-S> :update<CR>
+vnoremap <silent> <C-S> <C-O>:update<CR>
+inoremap <silent> <C-S> <C-O>:update<CR>
+cnoremap <silent> <C-S> <C-O>:update<CR>
 
-" Use Ctrl-Shift-[Left/Right] to navigate to the previous/next tab.
-nnoremap <C-S-Left>  :tabprevious<CR>
-inoremap <C-S-Left>  <C-O>:tabprevious<CR>
-nnoremap <C-S-Right> :tabNext<CR>
-inoremap <C-S-Right>  <C-O>:tabNext<CR>
+" F12 opens a new terminal in vim on the right
+nnoremap <F12> :vertical botright terminal<CR> 
+vnoremap <F12> <C-O>:vertical botright terminal<CR> 
+inoremap <F12> <C-O>:vertical botright terminal<CR> 
+cnoremap <F12> <C-O>:vertical botright terminal<CR> 
 
-" Use Ctrl-[Up/Down/Left/Right] to navigate to the window to the
-" top/bottom/left/right.
-nnoremap <C-Up>    <C-w><Up>
-inoremap <C-Up>    <C-O><C-w><Up>
-nnoremap <C-Down>  <C-w><Down>
-inoremap <C-Down>  <C-O><C-w><Down>
-nnoremap <C-Left>  <C-w><Left>
-inoremap <C-Left>  <C-O><C-w><Left>
-nnoremap <C-Right> <C-w><Right>
-inoremap <C-Right> <C-O><C-w><Right>
+" Ctrl-d close current window
+nnoremap <C-d> :q<CR>
+vnoremap <C-d> <C-O>:q<CR>
+inoremap <C-d> <C-O>:q<CR>
+cnoremap <C-d> <C-O>:q<CR>
 
-" Reopen recently closed window.
-nnoremap <C-l> :e #<CR>
-inoremap <C-l> <C-O>:e #<CR>
-nnoremap <C-w>ls :split#<CR>
-inoremap <C-w>ls <C-O>:split#<CR>
-nnoremap <C-w>lv :vsplit#<CR>
-inoremap <C-w>lv <C-O>:vsplit#<CR>
+" Ctrl-a selects the current line
+nnoremap <C-a> V
+inoremap <C-a> <C-O>V
 
-" Fuzzy search files with preview
-" on the right and open selected
-" in a right split view.
-nnoremap <silent> <leader>p :call fzf#run({ 'right': winwidth('.') / 2, 'sink': 'vertical botright split', 'options': '-1 --reverse --preview-window top:75% --bind="CTRL-A:toggle-preview" --preview "bat --color always -n {}"' })<CR>
-inoremap <silent> <leader>p <C-O>:call fzf#run({ 'right': winwidth('.') / 2, 'sink': 'vertical botright split', 'options': '-1 --reverse --preview-window top:75% --bind="CTRL-A:toggle-preview" --preview "bat --color always -n {}"' })<CR>
+"+------------------------------+
+"| Scrolling & Text navigation  |
+"+------------------------------+
 
-" Fuzzy search file content
+" Alt-Up scrolls up
+nnoremap <M-Up> <C-y>
+inoremap <M-Up> <C-O><C-y>
+vnoremap <M-Up> <C-O><C-y>
+cnoremap <M-Up> <C-O><C-y>
+
+" Alt-Down scrolls down
+nnoremap <M-Down> <C-e>
+inoremap <M-Down> <C-O><C-e>
+vnoremap <M-Down> <C-O><C-e>
+cnoremap <M-Down> <C-O><C-e>
+
+" Ctrl-Up jump to the previous paragraph
+nnoremap <C-Up> {
+inoremap <C-Up> <C-O>{
+vnoremap <C-Up> {
+
+" Ctrl-Down jump to next paragraph
+nnoremap <C-Down> }
+inoremap <C-Down> <C-O>}
+vnoremap <C-Down> }
+
+"+------------------------------+
+"| Quickfix window              |
+"+------------------------------+
+
+" Ctrl-PageUp select previous entry in the quickfix window
+nnoremap <C-PageUp> :cprevious<CR>
+inoremap <C-PageUp> <C-O>:cprevious<CR>
+
+" Ctrl-PageDown select next entry in the quickfix window
+nnoremap <C-PageDown> :cnext<CR>
+inoremap <C-PageDown> <C-O>:cnext<CR>
+
+"+------------------------------+
+"| Searching                    |
+"+------------------------------+
+
+" Ctrl-f fuzzy-search file content
 nnoremap <C-f> :BLines<CR>
 inoremap <C-f> <C-O>:BLines<CR>
 
-" Split windows
-" nnoremap <C-w>V :vne<CR>
-" inoremap <C-w>V <C-O>:vne<CR>
-" nnoremap <C-w>S :new<CR>
-" inoremap <C-w>S <C-O>:new<CR>
+" Ctrl-p fuzzy-search files (root is $PWD) and open it in current
+" window
+"
+" During fuzzy-search Ctrl-a toogles a preview, Ctrl-x opens
+" the selected file on the right and Ctrl-y opens the selected
+" file in a split window.
+nnoremap <C-p> :FZF<CR>
+vnoremap <C-p> <C-O>:FZF<CR>
+inoremap <C-p> <C-O>:FZF<CR>
+cnoremap <C-p> <C-O>:FZF<CR>
 
-" Cycle through quickfix window entries
-nnoremap <F8> :cprevious<CR>
-nnoremap <F9> :cnext<CR>
-inoremap <F8> <C-O>:cprevious<CR>
-inoremap <F9> <C-O>:cnext<CR>
+" AltGr-p fuzzy-search files (root is $HOME) and open it in current
+" window
+"
+" During fuzzy-search Ctrl-a toogles a preview, Ctrl-x opens
+" the selected file on the right and Ctrl-y opens the selected
+" file in a split window.
+nnoremap þ :Files $HOME<CR>
+vnoremap þ <C-O>:Files $HOME<CR>
+inoremap þ <C-O>:Files $HOME<CR>
+cnoremap þ <C-O>:Files $HOME<CR>
 
-" Switch color schemes
-nnoremap <F3> :colorscheme vscode<CR>
-nnoremap <F4> :colorscheme github<CR>
+"+------------------------------+
+"| Git shortcuts                |
+"+------------------------------+
 
-" Git shortcuts
-nnoremap <C-x><C-d> :Gvdiff<CR>
-inoremap <C-x><C-d> <C-O>:Gvdiff<CR>
+" Ctrl-x-Ctrl-s show git diff in vsplit window
+nnoremap <C-x><C-s> :Gvdiff<CR>
+inoremap <C-x><C-s> <C-O>:Gvdiff<CR>
 
-" Git shortcuts
-nnoremap gl :Glog<CR><CR>
-" Hint: use o to open Gblame entry commit in new window
-nnoremap gb :Gblame<CR>
-nnoremap gd :Gvdiff<CR>
-nnoremap gD :Gdiff<CR>
-nnoremap gc :Gcommit<CR>
-nnoremap ga :Gcommit --amend --no-edit<CR><CR>
-nnoremap gp :Gpull --rebase
-nnoremap gP :Gpush
-nnoremap gf :Gfetch<CR>
-nnoremap gs :Gstatus<CR>
-nnoremap go :Git co 
+" Ctrl-x-Ctrl-d list changed files (git status)
+nnoremap <C-x><C-d> :GFiles?<CR>
+inoremap <C-x><C-d> <C-O>:GFiles?<CR>
+
+" Ctrl-x-Ctrl-b show git blame of current window
+nnoremap <C-x><C-b> :Gblame<CR>
+inoremap <C-x><C-b> <C-O>:Gblame<CR>

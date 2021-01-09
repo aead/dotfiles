@@ -18,6 +18,9 @@ set nowrap
 " Convert tabs to spaces
 set expandtab
 
+" Set the terminal window title
+set title
+
 " Insert 4 spaces for one tab
 set tabstop=4
 
@@ -47,11 +50,9 @@ set autoread
 " Use the system clipboard for copy/paste (requries vim-gtk3 package).
 set clipboard=unnamedplus
 
-" Enable spell checking for git commit messages
+" Enable spell checking for git commit messages and markdown
 autocmd FileType gitcommit setlocal spell
-
-" Change color of auto-complete popup menu
-highlight Pmenu ctermbg=gray guibg=gray
+autocmd FileType markdown setlocal spell
 
 " Use 256 color support of terminal.
 let &t_Co=256
@@ -72,11 +73,23 @@ set statusline+=%1*\ %{(&fenc!=''?&fenc:&enc)}\          " Encoding
 set statusline+=%1*\ %-3(%{FileSize()}%)                 " File size
 set statusline+=%1*\ %2p%%\                              " Rownumber/total (%)
 
+" Change color of the mode message 
+highlight ModeMsg  term=standout ctermfg=75 ctermbg=234 guifg=#569CD6 guibg=#1E1E1E
+" Change color of current line number
+highlight CursorLineNr term=bold ctermfg=75 ctermbg=234 guifg=#BBBBBB guibg=#1E1E1E
+
 " Syntastic settings
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+
+" Command :Shell (args) runs an arbitrary shell command
+" and writes the output to a vertical buffer on the right.
+command! -complete=shellcmd -nargs=+ Shell call s:RunShellCommand(<q-args>)
+function! s:RunShellCommand(cmdline) abort
+    exe 'vertical botright terminal '. a:cmdline
+endfunction
 
 " ------
 " Helper functions for the status line

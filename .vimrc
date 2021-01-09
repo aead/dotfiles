@@ -10,10 +10,6 @@ syntax on
 filetype plugin on 
 filetype indent on
 
-source ~/.vim/startup/settings.vim
-source ~/.vim/startup/mappings.vim
-source ~/.vim/startup/commands.vim
-
 " Default color scheme
 if !empty($VIM_COLOR)
     colorscheme $VIM_COLOR
@@ -21,3 +17,6 @@ else
     colorscheme vscode
 endif
 
+source ~/.vim/startup/settings.vim
+source ~/.vim/startup/mappings.vim
+source ~/.vim/startup/commands.vim
