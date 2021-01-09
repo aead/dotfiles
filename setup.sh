@@ -10,6 +10,11 @@ if [ -f ~/.bash_aliases ]; then
 fi
 ln -s $PWD/.bash_aliases ~/.bash_aliases
 
+if [ -f ~/.bash_tools ]; then
+    rm ~/.bash_tools
+fi
+ln -s $PWD/.bash_tools ~/.bash_tools
+
 if [ -f ~/.bashrc ]; then
     rm ~/.bashrc
 fi

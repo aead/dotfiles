@@ -57,20 +57,6 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    #function git_branch {
-    #  local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);
-    #  if [[ -n $branch ]];then
-    #    local repo_path=$(git rev-parse --absolute-git-dir 2> /dev/null);
-    #    local repo_status=$(git status --short --show-stash --ignore-submodules=untracked 2> /dev/null);
-    #    if [[ -n $repo_status && $repo_path != "$HOME/.git" ]];then
-    #        echo " ($branch) ✘";
-    #    elif [[ $repo_path != "$HOME/.git" ]];then
-    #       echo " ($branch)";
-	#elif [[ -n $repo_status && $repo_path = "$HOME/.git" ]];then
-    #       echo " ✘";
-	#fi
-    #  fi	
-    #}
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[1;36m\]\A \W/\[\033[1;31m\]$(git_branch)\[\033[1;36m\] ➜\[\033[00m\] '
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
@@ -119,6 +105,11 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+# 
+if [ -f ~/.bash_tools ]; then
+    . ~/.bash_tools
+fi
+
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -133,97 +124,26 @@ fi
 # disable ctrl-S for terminal output halt -> in vim ctrl-S saves file 
 stty -ixon
 
+# disable ctrl-Q for resuming terminal output -> in vim ctrl-Q closes windows
+stty start undef
+
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
-export FZF_DEFAULT_OPTS="--bind 'page-up:preview-page-up,page-down:preview-page-down,ctrl-w:beginning-of-line+kill-line,ctrl-A:toggle-preview' --preview-window hidden --preview ' [[ -f {} ]] && bat -n --color=always {}'"
-
-# Commands and functions for a great CLI experience
-#
-
-# Command: v [arg-1]
-# Fuzzy search for a file - if 1st arg is non-empty use it as search query.
-# If there is only one, open it directly. If there is no match exit. Otherwise,
-# list matches and the first 200 lines of text files as preview on the right.
-v() {
-  local file
-  file=($(fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window right:50% --preview 'head -n 200 | bat -n --color=always {}'))
-  [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
-}
-
-v-git() {
+vim-git() {
    local file
-   git diff -s --exit-code 2>/dev/null;
-   if [ $? == 1 ]; then
-      file=$(git ls-files \
-             -m -o \
-             --exclude-standard \
-           | fzf \
-             --query="$1"\
-             --sync \
-             --exit-0 \
-             --reverse \
-             --border \
-             --sort \
-             --bind='CTRL-A:toggle-preview' \
-             --preview-window=right:75% \
-             --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && bat --diff --diff-context 8 --color always {} || bat --color always {}')
-   fi
-   [[ -n "$file" ]] && ${EDITOR:-vim} "$file" 
+   file=$(fd -HL -t f "." $(fd -L -t d "." -X isgit | xargs) \
+          | fzf --exit-0 --height 100% --reverse --border \
+            --bind='CTRL-A:toggle-preview' --preview-window right:60% \
+            --preview 'bat -n --color always {}'
+         )
+   [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
 }
 
-# Command: c [arg-1]
-# Fuzzy search for a directory - if 1st arg is non-empty use it as search query.
-# If there is only one, cd into it directly. If there is no match exit. Otherwise,
-# list files and directories within the currently selected one on the right.
-c() {
-    local dir
-    if [ -f ~/.starred_dirs ]; then
-       dir=$(cat ~/.starred_dirs \
-             | fzf --query="$1" --exit-0 --height 100% --reverse --border \
-                   --bind='CTRL-A:toggle-preview' \
-                   --preview-window right:50% \
-                   --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}'
-            )
-    fi
-    if [ -n "$dir" ]; then
-       cd "$dir" && v-git
-    else
-       dir=$(fd -HL -t d "." "$HOME" \
-            | fzf --query="$1" --select-1 --exit-0 --height 100% --reverse --border \
-              --bind='CTRL-A:toggle-preview' \
-              --preview-window right:50% \
-              --preview 'exa -hHl -L 1 --tree --color always --group-directories-first {}'
-            ) && cd "$dir" && v-git
-    fi
-}
+export MANPAGER='sh -c "col -bx | bat -l man -n"'
 
-# Command: sf [arg-1]
-# Fuzzy search for [arg-1] matches in files and show matching content as preview on 
-# the right. If 1st arg is empty read it from STDIN.
-sf() {
-  local file query
-  if [ ! "$#" -gt 0 ]; then 
-      read -p '(search:) ' query
-  else
-      query="$1"
-  fi
-  if [ -z "$query" ]; then 
-      echo "Error: Search query required" >&2;
-      return 1; 
-  fi
-
-  file=$(rg --files-with-matches --no-messages "$query" \
-         | fzf --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview-window=right:75% --preview "rg --ignore-case --pretty --context 10 '$query' {} | bat --style=snip --color always")
-  [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
-}
-
-export MANPAGER="bat -p -l man"
-
-fman() {
+man-fzf() {
    local m=$(man -k . \
              | fzf \
-               --query="$1" \
                --exit-0 \
                --exact \
                --reverse \
@@ -233,75 +153,6 @@ fman() {
                --preview 'man {1}'
             )
    [[ -n "$m" ]] && echo "$m" | awk '{print $1}' | xargs -r man
-}
-
-# Command: goDecl [arg-1]
-# Parse all func and type definitions in:
-#  - go file if arg-1 is a go file
-#  - all go files (non-recursive) if arg-1 is a directory
-#  - all go files recursivly if arg-1 is omitted
-# and fuzzy search the go identifiers. 
-# It opens the file which contains the selected identifier
-# at the correct position.
-go-decl() {
-    get-decl() {
-        if [ "$1" == "" ]; then
-            "$1" == "."
-        fi
-        if [[ -d "$1" ]]; then
-           echo $(motion -dir "$1" -mode decls -include func,type -format json 2> /dev/null)
-        else 
-           echo $(motion -file "$1" -mode decls -include func,type -format json 2> /dev/null)
-        fi
-    }
-
-    file=$(get-decl "$1" \
-           | jq \
-             -r '.decls | .[] | "\( .keyword ) \( .ident ) \( .filename) \( .line ) \( .col )"' \
-             2> /dev/null \
-           | fzf \
-             --exit-0 \
-             --select-1 \
-             --reverse \
-             --with-nth 1,2 \
-             --height=50% \
-             --preview-window top:5% \
-             --bind='CTRL-A:toggle-preview' \
-             --preview 'bat --color always -n -r {4}:{4} {3}' \
-           | awk '{print "+"$4 " " $3}'
-          )
-    [[ -n "$file" ]] && ${EDITOR:-vim} $(echo "$file")
-}
-
-# Command: goList [arg-1]
-# Fuzzy search all go packages in GOPATH and GOROOT
-# if arg-1 is empty. Otherwise, fuzzy search all
-# packages in GOPATH and GOROOT that start with arg-1.
-# While fuzzy searching list all files in the currently
-# selected package.
-# Once a package is selected then fuzzy search the package
-# files (recursivly) and show currently selected file as
-# preview.
-# Finally, open selected file in vim.
-goList() {
-    local arg dir file goMod
-    if [ "$1" == "" ]; then
-        arg="all"
-    else
-        arg="$1"
-    fi
-    
-    goMod="$GO111MODULE"
-    GO111MODULE="off"
-    dir=$(go list -f '{{ .ImportPath }} {{ .Dir }}' "$arg" \
-          | fzf --exit-0 --height 100% --with-nth 1 --reverse --border --bind='CTRL-A:toggle-preview' \
-          --preview-window=right:50% --preview 'exa -hHl -L 1 --group-directories-first --tree --color always {2}' \
-          | awk '{print $2}')
-    if [[ -n "$dir" ]]; then
-        file=($(fd . "$dir" --type f -exec echo {/} | fzf --select-1 --exit-0 --height 100% --reverse --border --bind='CTRL-A:toggle-preview' --preview "bat -n --color=always $dir/{}"))
-        [[ -n "$file" ]] && ${EDITOR:-vim} $(echo "$dir/$file")
-    fi 
-    GO111MODULE="$goMod"
 }
 
 # git-show [query]
@@ -315,7 +166,7 @@ goList() {
 # ID.
 git-show() {
     local c=$(git log \
-                --format='%C(auto)%h%d %s %C(white)%C(bold)%cr' \
+                --format='%C(auto)%h%C(reset) %cs %s' \
                 --color=always \
               | fzf \
                 --query="$1" \
@@ -327,9 +178,10 @@ git-show() {
                 --no-sort \
                 --bind='CTRL-A:toggle-preview' \
                 --preview-window=right:50% \
-                --preview 'git show --name-status --color=always {1} | bat -n --color always'
+                --preview 'git show --stat --color=always {1} | bat -n --color always'
             )
-    [[ -n "$c" ]] && [[ ! -t 1 ]] && echo "$c" | awk '{print $1}'
+    [[ -n "$c" ]] && echo "$c" | awk '{print $1}' | 2c && echo "Copied $(c2) to clipboard!"
+    return 0;
 }
 
 # git-diff 
@@ -371,8 +223,7 @@ git-diff() {
 # If a commit has been selected git-blame prints
 # that commit to STDOUT.
 git-blame() {
-    local f=$(git ls-files \
-              | fzf \
+    local f=$(git ls-files | fzf \
                 --query="$1" \
                 --exit-0 \
                 --reverse \
@@ -380,11 +231,11 @@ git-blame() {
                 --sort \
                 --bind='CTRL-A:toggle-preview' \
                 --preview-window=right:50% \
-                --preview 'git blame --root -s --color-by-age --color-lines {} | sed -r "s/(\s+)?\S+//2"  | bat -n --color always'
+                --preview 'paste -d " " <(git blame -s --color-by-age --color-lines {} | cut -d " " -f1) <(bat --color=always --decorations=never {}) | bat -n --color=always'
             )
     if [ -n "$f" ]; then
         local c=$(git log \
-                    --format='%C(auto)%h%d %s %C(white)%C(bold)%cr' \
+                    --format='%C(auto)%h %cs %s' \
                     --color=always \
                     -- "$f" \
                   | fzf \
@@ -397,7 +248,7 @@ git-blame() {
                     --no-sort \
                     --bind='CTRL-A:toggle-preview' \
                     --preview-window=right:50% \
-                    --preview 'git show -p --color=always {1} | bat -n --color always'
+                    --preview 'git show --stat -p --color=always {1}'
                  )
        [[ -n "$c" ]] && echo "$c" | awk '{print $1}' | 2c && echo "Copied $(c2) to clipboard!" 
     fi
@@ -421,23 +272,14 @@ git-branch() {
   fi
 }
 
-star-dir() {
-   echo "$PWD" >> ~/.starred_dirs
-}
-
-unstar-dir() { 
-   rg -v -x -F "$PWD" '~/.starred_dirs' > '~/.starred_dirs'
-}
-
-# Command: gitDiff
+# Command: git-review
 # Requires that $PWD is a git repo.
 # Fuzzy search all commits and show commit
 # message of currently selected file in
 # preview. 
 # Once a commit is selected it shows the
-# diff (like gitDiff command) of the commit
-# compared to master.
-gitReview() {
+# diff of the commit compared to master.
+git-review() {
   local commit parent file
   commit=$(git log --pretty=format:"%h  %<(23)%aN %s" \
           | fzf --query="$1" --sort --exit-0 --reverse --exact --bind='CTRL-A:toggle-preview' \
@@ -523,20 +365,7 @@ pr-review() {
    fi
 }
 
-bind -x '"\C-p": "v"'
-bind -x '"\C-s": "c"'
-
-bind -x '"\C-x\C-s": "git-show"'
-bind -x '"\C-x\C-d": "git-diff"'
-bind -x '"\C-x\C-b": "git-blame"'
-bind -x '"\C-x\C-o": "git-branch"'
-bind -x '"\C-xr": "gitReview"'
-
-bind -x '"\C-gd": "go-decl ."'
-bind -x '"\C-gl": "goList all"'
-
 # export VIM_COLOR=github 
 # export BAT_THEME=GitHub 
 
 complete -C /home/andreas/go/bin/mc mc
-
