@@ -1,24 +1,13 @@
 #!/bin/sh
-
 git submodule update --init --recursive
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
-if [ -f ~/.bash_aliases ]; then
-    rm ~/.bash_aliases
+if [ -f ~/.zshrc ]; then
+    rm ~/.zshrc
 fi
-ln -s $PWD/.bash_aliases ~/.bash_aliases
-
-if [ -f ~/.bash_tools ]; then
-    rm ~/.bash_tools
-fi
-ln -s $PWD/.bash_tools ~/.bash_tools
-
-if [ -f ~/.bashrc ]; then
-    rm ~/.bashrc
-fi
-ln -s $PWD/.bashrc ~/.bashrc
+ln -s $PWD/.zshrc ~/.zshrc
 
 if [ -f ~/.gitconfig ]; then
     rm ~/.gitconfig

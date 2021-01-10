@@ -67,14 +67,14 @@ vnoremap <M-Down> <C-O><C-e>
 cnoremap <M-Down> <C-O><C-e>
 
 " Ctrl-Up jump to the previous paragraph
-nnoremap <C-Up> {
-inoremap <C-Up> <C-O>{
-vnoremap <C-Up> {
+nnoremap <PageUp> {
+inoremap <PageUp> <C-O>{
+vnoremap <PageUp> {
 
 " Ctrl-Down jump to next paragraph
-nnoremap <C-Down> }
-inoremap <C-Down> <C-O>}
-vnoremap <C-Down> }
+nnoremap <PageDown> }
+inoremap <PageDown> <C-O>}
+vnoremap <PageDown> }
 
 "+------------------------------+
 "| Quickfix window              |
@@ -107,16 +107,16 @@ vnoremap <C-p> <C-O>:FZF<CR>
 inoremap <C-p> <C-O>:FZF<CR>
 cnoremap <C-p> <C-O>:FZF<CR>
 
-" AltGr-p fuzzy-search files (root is $HOME) and open it in current
+" S-Opt-P fuzzy-search files (root is $HOME) and open it in current
 " window
 "
 " During fuzzy-search Ctrl-a toogles a preview, Ctrl-x opens
 " the selected file on the right and Ctrl-y opens the selected
 " file in a split window.
-nnoremap þ :Files $HOME<CR>
-vnoremap þ <C-O>:Files $HOME<CR>
-inoremap þ <C-O>:Files $HOME<CR>
-cnoremap þ <C-O>:Files $HOME<CR>
+nnoremap ∏ :Files $HOME<CR>
+vnoremap ∏ <C-O>:Files $HOME<CR>
+inoremap ∏ <C-O>:Files $HOME<CR>
+cnoremap ∏ <C-O>:Files $HOME<CR>
 
 "+------------------------------+
 "| Git shortcuts                |

@@ -1,8 +1,0 @@
-alias up='sudo snap refresh && sudo apt update && sudo apt upgrade'
-alias xopen='xdg-open'
-alias cat='bat'
-alias ls='exa'
-alias ll='exa -hHl -L 1 --tree --group-directories-first'
-alias grep='rg'
-alias 2c='xclip -selection c'
-alias c2='xclip -selection c -o'

@@ -48,7 +48,7 @@ set completeopt=longest,menuone
 set autoread
 
 " Use the system clipboard for copy/paste (requries vim-gtk3 package).
-set clipboard=unnamedplus
+set clipboard^=unnamed,unnamedplus
 
 " Enable spell checking for git commit messages and markdown
 autocmd FileType gitcommit setlocal spell
