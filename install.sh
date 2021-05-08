@@ -30,3 +30,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+cargo install git-delta
+if [ $? -ne 0 ]; then
+    exit 1
+fi

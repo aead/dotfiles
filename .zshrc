@@ -1,5 +1,9 @@
 PATH="$HOME/go/bin:$PATH"
 PATH="$HOME/.cargo/bin:$PATH"
+PATH="/opt/homebrew/bin:$PATH"
+
+PATH="/opt/homebrew/opt/openssl@1.1/bin:$PATH"
+PATH="/opt/homebrew/opt/curl/bin:$PATH"
 
 # Disable Ctrl-S for terminal output halt -> in vim Ctrl-S saves file
 stty -ixon
@@ -20,6 +24,9 @@ fi
 # Add FZF functions and shortcuts
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Enable command completion (e.g. git)
+autoload -Uz compinit && compinit
+
 # Customize zsh prompt using starship
 eval "$(starship init zsh)"
 
@@ -30,6 +37,8 @@ alias ll='exa -hHl -L 1 --tree --group-directories-first'
 alias grep='rg'
 # alias 2c='xclip -selection c'
 # alias c2='xclip -selection c -o'
+alias light-mode='export BAT_THEME=GitHub && export VIM_COLOR=Github'
+alias dark-mode='unset BAT_THEME && unset VIM_COLOR'
 
 #
 # Shell functions
@@ -46,7 +55,7 @@ vim-fzf() {
          --reverse \
          --cycle \
          --height 50% \
-         --preview-window='right:60%' \
+         --preview-window='right:60%:nohidden' \
          --preview='head -n 300 | bat -n --color=always {}'
         )
   [ -n "$file" ] && ${EDITOR:-vim} --not-a-term "$file"
@@ -94,10 +103,10 @@ ff() {
           --cycle \
           --height 100% \
           --bind='change:reload([[ -n {q} ]] && rg --hidden --follow --files-with-matches --no-messages -F {q} || true)+top' \
-          --preview-window='right:60%' \
+          --preview-window='right:60%:nohidden' \
           --preview '[[ -f {} ]] && rg --ignore-case --pretty --context 10 -F {q} {} | bat --style=snip --color always'
          )
-    [[ -n "$file" ]] && ${EDITOR:-vim} "$file"
+    [[ -n "$file" ]] && ${EDITOR:-vim} --not-a-term "$file"
     zle reset-prompt
 }
 
@@ -148,7 +157,7 @@ fd-git() {
            --exit-0 \
            --reverse \
            --cycle \
-           --height 100% \
+           --height 40% \
            --preview-window='right:60%' \
            --preview 'git -C {} log -n 1 --color=always && echo "" && git -C {} log --color=always --pretty=format:"%C(auto) %h %Creset %cs  %s" --skip=1'
          ) && cd "$dir"
@@ -177,8 +186,8 @@ git-diff() {
                 --reverse \
                 --border \
                 --sort \
-                --preview-window=right:75% \
-                --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && bat --diff --diff-context 8 --color always {} || bat --color always {}')
+                --preview-window=top:80%:nohidden \
+                --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && git diff {} | delta --width=$FZF_PREVIEW_COLUMNS || bat --color always {}')
     [[ -n "$f" ]] && ${EDITOR:-vim} --not-a-term "$f"
     zle reset-prompt
 }
