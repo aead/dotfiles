@@ -32,6 +32,9 @@ set noswapfile
 set nobackup
 set nowritebackup
 
+" Make backspace work as expected
+set backspace=indent,eol,start
+
 " Set encoding to UTF-8
 set enc=utf-8
 
@@ -72,11 +75,6 @@ set statusline+=%1*\ %y\                                 " FileType
 set statusline+=%1*\ %{(&fenc!=''?&fenc:&enc)}\          " Encoding
 set statusline+=%1*\ %-3(%{FileSize()}%)                 " File size
 set statusline+=%1*\ %2p%%\                              " Rownumber/total (%)
-
-" Change color of the mode message 
-highlight ModeMsg  term=standout ctermfg=75 ctermbg=234 guifg=#569CD6 guibg=#1E1E1E
-" Change color of current line number
-highlight CursorLineNr term=bold ctermfg=75 ctermbg=234 guifg=#BBBBBB guibg=#1E1E1E
 
 " Syntastic settings
 let g:syntastic_always_populate_loc_list = 1

@@ -357,3 +357,8 @@ call <sid>hi('gitcommitSummary', s:cdPink, {}, 'none', {})
 call <sid>hi('gitcommitBlank', s:cdPink, {}, 'none', {})
 
 hi SpellBad cterm=underline
+
+" Change color of the mode message
+highlight ModeMsg  term=standout ctermfg=75 ctermbg=234 guifg=#569CD6 guibg=#1E1E1E
+" Change color of current line number
+highlight CursorLineNr term=bold ctermfg=75 ctermbg=234 guifg=#BBBBBB guibg=#1E1E1E

@@ -4,11 +4,10 @@ let g:go_fmt_command = "goimports"
 let g:go_test_timeout = "1m"
 let g:go_def_mode = "gopls"
 let g:go_info_mode = "gopls"
-let g:go_gorename_command = 'gopls'
+let g:go_gorename_command = "gopls"
 
 setlocal splitright
 setlocal omnifunc=go#complete#Complete
-
 " .<Space> trigger auto-completion.
 inoremap .<Space> .<C-x><C-o>
 
@@ -39,4 +38,7 @@ inoremap <C-o> <C-O>:GoDefPop<CR>
 nnoremap <C-l> :GoDecls<CR>
 inoremap <C-l> <C-O>:GoDecls<CR>
 
+" Ctrl-e insert an if err != nil {} check
+nnoremap <C-e> :GoIfErr<CR>
+inoremap <C-e> <C-O>:GoIfErr<CR>
 

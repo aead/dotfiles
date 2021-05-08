@@ -6,7 +6,7 @@ nnoremap <BS> i<BS>
 
 " Ctrl-i triggers auto-completion. (keyword completion)
 " Unfortunately, vim treats TAB as Ctrl-i. Therefore,
-" we have to re.map Ctrl-i. Otherwise, TAB would not
+" we have to remap Ctrl-i. Otherwise, TAB would not
 " behave as expected.
 inoremap <C-i> <C-x><C-n>
 
@@ -22,12 +22,6 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' : \ '<C-n><C-r>=pumvisible() ? "\<l
 inoremap <C-W><C-W> <C-O><C-W><C-W>
 vnoremap <C-W><C-W> <C-O><C-W><C-W>
 
-" Ctrl-Space keeps only the current window open
-" and closes all others.
-nnoremap <Nul> :only<CR>
-inoremap <Nul> <C-O>:only<CR>
-vnoremap <Nul> <C-O>:only<CR>
-
 " Ctrl-s saves files (requires stty -ixon)
 nnoremap <silent> <C-S> :update<CR>
 vnoremap <silent> <C-S> <C-O>:update<CR>
@@ -42,51 +36,72 @@ cnoremap <F12> <C-O>:vertical botright terminal<CR>
 
 " Ctrl-d close current window
 nnoremap <C-d> :q<CR>
-vnoremap <C-d> <C-O>:q<CR>
 inoremap <C-d> <C-O>:q<CR>
-cnoremap <C-d> <C-O>:q<CR>
+vnoremap <C-d> <C-O>:q<CR>
+cnoremap <C-D> <C-O>:q<CR>
+
+" Opt-W closes all windows, except the currently selected one. 
+nnoremap ∑ :only<CR>
+vnoremap ∑ <C-O>:only<CR>
+inoremap ∑ <C-O>:only<CR>
 
 " Ctrl-a selects the current line
 nnoremap <C-a> V
 inoremap <C-a> <C-O>V
 
+" Ctrl-v switch to visual mode
+nnoremap <C-v> v
+inoremap <C-v> <C-O>v
+
 "+------------------------------+
 "| Scrolling & Text navigation  |
 "+------------------------------+
 
-" Alt-Up scrolls up
-nnoremap <M-Up> <C-y>
-inoremap <M-Up> <C-O><C-y>
-vnoremap <M-Up> <C-O><C-y>
-cnoremap <M-Up> <C-O><C-y>
+" The Mac Terminal may not send the key correct escape codes
+" such that Vim may not recognize key combinations like <C-Down>.
+" Therefore, the following escape code mappings have to be configured:
+" <S-up>:      \033[1;2A
+" <S-down>:    \033[1;2B
+" <S-right>:   \033[1;2C
+" <S-left>:    \033[1;2D
+"
+" <M-up>:      \033[1;3A
+" <M-down>:    \033[1;3B
+" <M-right>:   \033[1;3C
+" <M-left>:    \033[1;3D
+"
+" <M-S-up>:    \033[1;4A
+" <M-S-down>:  \033[1;4B
+" <M-S-right>: \033[1;4C
+" <M-S-left>:  \033[1;4D
+"
+" <C-up>:      \033[1;5A
+" <C-down>:    \033[1;5B
+" <C-right>:   \033[1;5C
+" <C-left>:    \033[1;5D
 
-" Alt-Down scrolls down
-nnoremap <M-Down> <C-e>
-inoremap <M-Down> <C-O><C-e>
-vnoremap <M-Down> <C-O><C-e>
-cnoremap <M-Down> <C-O><C-e>
 
-" Ctrl-Up jump to the previous paragraph
-nnoremap <PageUp> {
-inoremap <PageUp> <C-O>{
-vnoremap <PageUp> {
+" Shift-Up jump to the previous paragraph
+nnoremap <S-Up> {
+inoremap <S-Up> <C-O>{
+vnoremap <S-Up> {
 
-" Ctrl-Down jump to next paragraph
-nnoremap <PageDown> }
-inoremap <PageDown> <C-O>}
-vnoremap <PageDown> }
+" Shift-Down jump to next paragraph
+nnoremap <S-Down> }
+inoremap <S-Down> <C-O>}
+vnoremap <S-Down> }
 
 "+------------------------------+
 "| Quickfix window              |
 "+------------------------------+
 
 " Ctrl-PageUp select previous entry in the quickfix window
-nnoremap <C-PageUp> :cprevious<CR>
-inoremap <C-PageUp> <C-O>:cprevious<CR>
+nnoremap <M-Up> :cprevious<CR>
+inoremap <M-up> <C-O>:cprevious<CR>
 
 " Ctrl-PageDown select next entry in the quickfix window
-nnoremap <C-PageDown> :cnext<CR>
-inoremap <C-PageDown> <C-O>:cnext<CR>
+nnoremap <M-Down> :cnext<CR>
+inoremap <M-Down> <C-O>:cnext<CR>
 
 "+------------------------------+
 "| Searching                    |
@@ -113,10 +128,10 @@ cnoremap <C-p> <C-O>:FZF<CR>
 " During fuzzy-search Ctrl-a toogles a preview, Ctrl-x opens
 " the selected file on the right and Ctrl-y opens the selected
 " file in a split window.
-nnoremap ∏ :Files $HOME<CR>
-vnoremap ∏ <C-O>:Files $HOME<CR>
-inoremap ∏ <C-O>:Files $HOME<CR>
-cnoremap ∏ <C-O>:Files $HOME<CR>
+nnoremap <C-π> :Files $HOME<CR>
+vnoremap <C-π> <C-O>:Files $HOME<CR>
+inoremap <C-π> <C-O>:Files $HOME<CR>
+cnoremap <C-π> <C-O>:Files $HOME<CR>
 
 "+------------------------------+
 "| Git shortcuts                |
