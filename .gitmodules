@@ -4,9 +4,6 @@
 [submodule ".vim/bundle/fugitive.vim"]
 	path = .vim/bundle/fugitive.vim
 	url = git@github.com:tpope/vim-fugitive.git
-[submodule ".vim/bundle/latex-preview.vim"]
-	path = .vim/bundle/latex-preview.vim
-	url = git@github.com:xuhdev/vim-latex-live-preview.git
 [submodule ".vim/pack/vendor/start/vimcompletesme"]
 	path = .vim/pack/vendor/start/vimcompletesme
 	url = git@github.com:ajh17/VimCompletesMe.git
