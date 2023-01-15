@@ -10,8 +10,8 @@ stty -ixon
 
 # History configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=100000
-SAVEHIST=100000
+HISTSIZE=10000
+SAVEHIST=10000
 setopt INC_APPEND_HISTORY # Append to history and 
 setopt HIST_FIND_NO_DUPS  # Ignore dublicate history entries (Up Arrow)
 setopt HIST_IGNORE_DUPS   # Don't add consecutive duplicates entries  
@@ -37,182 +37,156 @@ alias ll='exa -hHl -L 1 --tree --group-directories-first'
 alias grep='rg'
 # alias 2c='xclip -selection c'
 # alias c2='xclip -selection c -o'
-alias light-mode='export BAT_THEME=GitHub && export VIM_COLOR=Github'
-alias dark-mode='unset BAT_THEME && unset VIM_COLOR'
+alias light-mode='export BAT_THEME=GitHub'
+alias dark-mode='unset BAT_THEME'
+
+# Replace non-breaking spaces (Option + Space) with a regular space.
+# This avoids "command not found" issues when using pipes - e.g. ls | cat.
+bindkey -s '\xC2\xA0' ' '
 
 #
 # Shell functions
 #
 
-export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
-export FZF_DEFAULT_OPTS="--bind 'change:top,page-up:preview-page-up,page-down:preview-page-down,CTRL-W:toggle-preview-wrap,ctrl-A:toggle-preview' --preview-window hidden --preview ' [[ -f {} ]] && bat -n --color=always {}'"
+switch-theme() {
+   if [ -v VIM_COLOR ]; then
+      unset BAT_THEME && unset VIM_COLOR
+  else
+      export BAT_THEME=GitHub && export VIM_COLOR=Github
+   fi
+}   
+zle -N switch-theme
+bindkey '⁄' switch-theme # Opt+I
 
-# vim-fzf starts a file search and opens the selected file in vim.
-vim-fzf() {
-  local file
-  file=$(rg --files --follow --no-ignore-vcs --hidden | fzf \
+export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden'
+export FZF_DEFAULT_OPTS="--bind 'change:top,page-up:preview-page-up,page-down:preview-page-down,CTRL-W:toggle-preview-wrap,ctrl-A:toggle-preview' --layout reverse --preview-window noborder --preview ' [[ -f {} ]] && bat -n --color=always {}'"
+
+function __fzf-edit {
+  local file=$(rg --files --follow --no-ignore-vcs --hidden | fzf \
          --exit-0 \
          --reverse \
          --cycle \
-         --height 50% \
-         --preview-window='right:60%:nohidden' \
+         --info inline \
+         --margin 5% \
+         --height 100% \
+         --border sharp \
+         --preview-window='right:50%:nohidden,border-left' \
          --preview='head -n 300 | bat -n --color=always {}'
         )
-  [ -n "$file" ] && ${EDITOR:-vim} --not-a-term "$file"
+  [[ -n "$file" ]] && BUFFER="hx $file $BUFFER" && zle accept-line "$@"
   zle reset-prompt
 }
+zle -N __fzf-edit
+bindkey '^p' __fzf-edit
 
-zle -N vim-fzf
-bindkey '^P' vim-fzf
-
-# fd-fzf starts a directory search and cd's into the selected directory.
-#
-# It uses fd to walk find all directories under the current one ($PWD)
-# and shows a preview of the directory. If the directory is a git repository
-# fd-fzf shows the commit message of the first commit and a list of the
-# subsequent commits. Otherwise, fd-fzf lists the directory using exa.
-#
-# If the current directory does not have sub-directories fd-fzf does nothing.
-fd-fzf() {
-   local dir
-   dir=$(fd --follow --type d -F "" \
-         | fzf \
-           --exit-0 \
-           --reverse \
-           --cycle \
-           --height 100% \
-           --preview-window='right:50%' \
-           --preview='[[ $(isgit {}) != "" ]] && git -C {} log -n 1 --color=always && echo "" && git -C {} log --color=always --pretty=format:"%C(auto) %h %Creset %cs  %s" --skip=1 || exa -hHl -L 1 --tree --color always --group-directories-first {}'
-         ) && cd "$dir"
-   zle reset-prompt
-}
-
-# ff fuzzy-search all files interactively that contain search string.
-ff() {
-   local file init_cmd
-   if [ ! "$#" -gt 0 ]; then
-      init_cmd="true"
-   else
-      init_cmd="rg --hidden --follow --files-with-matches --no-messages -F $1"
-   fi
-   file=$($init_cmd | \
+function __fzf-search {
+   local file
+   file=$(rg --files --follow --no-ignore-vcs --hidden | \
           fzf \
-          --query="$1" \
           --phony \
           --reverse \
           --cycle \
+          --info inline \
+          --margin 5% \
           --height 100% \
-          --bind='change:reload([[ -n {q} ]] && rg --hidden --follow --files-with-matches --no-messages -F {q} || true)+top' \
-          --preview-window='right:60%:nohidden' \
+          --border sharp \
+          --bind='change:reload([[ -n {q} ]] && rg --hidden --follow --files-with-matches --no-messages -F {q} || rg --files --follow --no-ignore-vcs --hidden)+top' \
+          --preview-window='right:50%:nohidden,border-left' \
           --preview '[[ -f {} ]] && rg --ignore-case --pretty --context 10 -F {q} {} | bat --style=snip --color always'
          )
-    [[ -n "$file" ]] && ${EDITOR:-vim} --not-a-term "$file"
+  [[ -n "$file" ]] && BUFFER="hx $file $BUFFER" && zle accept-line "$@"
+  zle reset-prompt
+}
+zle -N __fzf-search
+bindkey '^f' __fzf-search
+
+function __fzf-git-files {
+  local file
+  file=$(git ls-files \
+         -m -o \
+         --exclude-standard \
+         | fzf \
+         --exit-0 \
+         --reverse \
+         --sort \
+         --cycle \
+         --margin 5% \
+         --height 100% \
+         --border sharp \
+         --preview-window='right:50%:nohidden,border-left' \
+         --preview 'bat -n --color always {}')
+  [[ -n "$file" ]] && BUFFER="hx $file $BUFFER" && zle accept-line "$@"
+  zle reset-prompt
+}
+zle -N __fzf-git-files
+bindkey '^g' __fzf-git-files
+
+function __fzf-git-diff() {
+    local file=$(git ls-files \
+                -m -o \
+                --exclude-standard \
+              | fzf \
+                --exit-0 \
+                --reverse \
+                --sort \
+                --cycle \
+                --info inline \
+                --margin 5% \
+                --height 100% \
+                --border sharp \
+                --preview-window='bottom:95%:nohidden,border-top' \
+                --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && git diff {} | delta --width=$FZF_PREVIEW_COLUMNS || bat --color always {}')
+    [[ -n "$file" ]] && BUFFER="hx $file $BUFFER" && zle accept-line "$@"
     zle reset-prompt
 }
+zle -N __fzf-git-diff
+bindkey '^X' __fzf-git-diff
 
-zle -N ff
-bindkey "^F" "ff"
-
-# cd behaves like the bash builtin cd command when an directory is
-# specified and opens an inline fzf directory search otherwise.
-#
-# The fzf instance shows all first-level sub-directories.
-# With → (right-arrow) the fzf switches into the selected
-# sub-direcory S and reloads the selection area with the
-# sub-directories of S.
-
-# The fzf walks one directory-level backwards when the ← (left-arrow)
-# is encountered.
-
-# The ALT-d key restarts the fzf instance from the top-level
-# directory.
-function cd() {
-    if [[ "$#" != 0 ]]; then
-        builtin cd "$@";
-        return
-    fi
-    local dir=$(fd --maxdepth=1 --type d --hidden | fzf \
-                --reverse \
-                --tac \
-                --cycle \
-                --height 40% \
-                --bind='ALT-D:reload(fd --maxdepth=1 --type d --hidden)' \
-                --bind='right:reload(fd --maxdepth=1 --type d --hidden "." {})' \
-                --bind='left:reload(dirname {} | xargs -r dirname | xargs -r fd --maxdepth=1 --type d --hidden ".")' \
-                --preview-window='right:65%:hidden' \
-                --preview 'exa -hHla -L 1 --color=always --group-directories-first {}'
-               )
-    [[ ${#dir} != 0 ]] || return 0
-    cd "$dir"
+__fzf-git-branch() {
+  local branch=$(git branch --color=always \
+                 | rg -v '/HEAD\s' \
+                 | fzf \
+                   --exit-0 \
+                   --reverse \
+                   --sort \
+                   --ansi \
+                   --tac \
+                   --multi \
+                   --margin 5% \
+                   --height 100% \
+                   --border sharp \
+                   --preview-window='right:50%:nohidden,border-left' \
+                   --preview 'git show -p --color=always "$(sed s/^..// <<< {} | cut -d" " -f1)" | bat' \
+                 | sed 's/^..//' | cut -d ' ' -f1
+                )
+  if [[ $branch != "" ]]; then
+      branch=$(echo "$branch" | tr '\n' ' ')
+      BUFFER="$BUFFER $branch"
+  fi
+  zle reset-prompt
 }
+zle -N __fzf-git-branch
+bindkey '^b' __fzf-git-branch
 
-# fd-git behaves like fd-fzf but filters for directories that are git
-# repositories. Since it only searches for git repositories fd-git
-# always shows the commit message of the first commit and a list of
-# the subsequent commits as preview.
-fd-git() {
+function __fzf-cd-git() {
    local dir
    dir=$(fd --follow --type d "." "$HOME" | isgit | sort \
          | fzf \
            --exit-0 \
            --reverse \
+           --sort \
            --cycle \
-           --height 40% \
-           --preview-window='right:60%' \
+           --margin 5% \
+           --height 100% \
+           --border sharp \
+           --preview-window='right:50%:nohidden,border-left' \
            --preview 'git -C {} log -n 1 --color=always && echo "" && git -C {} log --color=always --pretty=format:"%C(auto) %h %Creset %cs  %s" --skip=1'
          ) && cd "$dir"
    zle reset-prompt
 }
+zle -N __fzf-cd-git
+bindkey '^S' __fzf-cd-git
 
-zle -N fd-git fd-git
-bindkey '^S' fd-git
-
-# git-diff
-#   - Requires that $PWD is a git repo.
-#
-# It fuzzy-searches all changed files and
-# displays a preview of the diff (compared
-# to HEAD) of the currently selected file.
-#
-# If a file has been selected git-diff opens
-# it in vim.
-git-diff() {
-    local f=$(git ls-files \
-                -m -o \
-                --exclude-standard \
-              | fzf \
-                --sync \
-                --exit-0 \
-                --reverse \
-                --border \
-                --sort \
-                --preview-window=top:80%:nohidden \
-                --preview 'git diff -s --exit-code {}; [[ $? == 1 ]] && git diff {} | delta --width=$FZF_PREVIEW_COLUMNS || bat --color always {}')
-    [[ -n "$f" ]] && ${EDITOR:-vim} --not-a-term "$f"
-    zle reset-prompt
-}
-
-zle -N git-diff git-diff
-bindkey '^X' git-diff
-
-git-branch() {
-  local result=$(git branch --color=always \
-                 | rg -v '/HEAD\s' \
-                 | fzf \
-                   --reverse \
-                   --height 50% \
-                   --border \
-                   --ansi \
-                   --tac \
-                   --preview-window right:70% \
-                   --preview 'git show -p --color=always "$(sed s/^..// <<< {} | cut -d" " -f1)" | bat' \
-                 | sed 's/^..//' | cut -d' ' -f1
-                )
-  if [[ $result != "" ]]; then
-      git checkout "$result"
-  fi
-  zle reset-prompt
-}
 
 # git-blame [query]
 #   - Requires that $PWD is a git repo.

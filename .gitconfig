@@ -1,8 +1,9 @@
 [user]
-	email = aead@mail.de
+	email = hi@aead.dev
 	name = Andreas Auernhammer
 [http]
-	cookiefile = /home/andreas/.gitcookies
+    cookiefile = /home/andreas/.gitcookies
+
 [alias]
     co = checkout
     sd = !git diff --stat $(git merge-base HEAD master)
@@ -16,7 +17,7 @@
 	delete = branch -D
 	
 [core]
-    editor = 'vim'
+    editor = hx
     pager = delta
 
 [interactive]

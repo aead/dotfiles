@@ -21,4 +21,3 @@ symbol = "λ"     # The "symbol" segment is being set to "λ"
 [time]
 disabled = false
 format = "%R"
-
